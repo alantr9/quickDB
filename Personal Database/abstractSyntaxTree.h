@@ -29,7 +29,7 @@ struct SQLCommand
 struct createTable : SQLCommand 
 {
     std::string tableName;
-    std::vector<std::pair<std::string, std::string>> columns; // (columns, data)
+    std::vector<std::pair<std::string, std::string>> columns; // fetching columnName and datatype
 
     commandType type() const override { return commandType::CREATE_TABLE; }
 };
@@ -47,7 +47,7 @@ struct insertCommand : SQLCommand
 struct selectCommand : SQLCommand 
 {
     std::string tableName;
-    std::vector<std::string> columns;
+    std::vector<std::string> columnName;
     std::optional<std::pair<std::string, std::string>> specificLocation; // (column, value)
 
     commandType type() const override { return commandType::SELECT; }
@@ -66,7 +66,8 @@ struct createIndex : SQLCommand
 struct deleteCommand : SQLCommand 
 {
     std::string tableName;
-    std::pair<std::string, std::string> specificLocation; // (column, value), assume simple WHERE
+    std::string deleteRow; // using WHERE
+    std::optional<std::pair<std::string, std::string>> specificLocation; // (column, value), assume simple WHERE
 
     commandType type() const override { return commandType::DELETE; }
 };
