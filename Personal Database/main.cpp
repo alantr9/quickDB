@@ -38,6 +38,14 @@ void executeQuery(const std::string& input) {
     {
         std::cout << "[SELECT] Not yet implemented\n";
     }
+    else if (command == "DELETE")
+    {
+        std::cout << "[DELETE] Not yet implemented\n";
+    }
+    else if (command == "DROP")
+    {
+        std::cout << "[DROP] Not yet implemented\n";
+    }
     else 
     {
         std::cout << "[ERROR] Unknown command: " << command << "\n";
