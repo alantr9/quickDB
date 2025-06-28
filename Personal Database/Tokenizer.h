@@ -42,7 +42,7 @@ public:
 
     size_t position    = 0;
     bool  hasPeeked   = false;
-    token peekedToken = token(tokenType::Unknown, "", 0); // Token Cache
+    token cachedToken = token(tokenType::Unknown, "", 0); // Stores the peeked token
 
     void  skipWhitespace();
     token readIdentifierOrKeyword();
