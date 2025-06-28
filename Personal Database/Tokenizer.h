@@ -18,15 +18,37 @@ enum class tokenType
 };
 
 
-struct Token {
+struct token 
+{
     tokenType   type;
     std::string text;
     size_t      position; // position in token
 
-    Token(tokenType t, std::string val, size_t pos)
-        : type(t), text(std::move(val)), position(pos) {
-    }
+    token(tokenType t, std::string val, size_t pos)
+        : type(t), text(std::move(val)), position(pos) {}
 };
 
+class tokenizer
+{
+private:
+    explicit tokenizer(const std::string& input);
+
+    token getNextToken();         // Consume next token
+    token peekToken();            // Look ahead without consuming
+    bool  hasMoreTokens() const;
+
+public:
+    const std::string input;
+
+    size_t position    = 0;
+    bool  hasPeeked   = false;
+    token peekedToken = token(tokenType::Unknown, "", 0); // Token Cache
+
+    void  skipWhitespace();
+    token readIdentifierOrKeyword();
+    token readNumber();
+    token readStringLiteral();
+    token readSymbol();
+};
 
 #endif 
