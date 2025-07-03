@@ -4,3 +4,10 @@
 tokenizer::tokenizer(const std::string& input) :
 	m_input{ input } {};
 
+void tokenizer::skipWhitespace()
+{
+	while (position < m_input.size() && std::isspace(m_input[position])) 
+	{
+		++position;
+	}
+}
