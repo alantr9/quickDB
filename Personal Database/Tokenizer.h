@@ -38,7 +38,7 @@ private:
     bool  hasMoreTokens() const;
 
 public:
-    const std::string input;
+    const std::string m_input;
 
     size_t position    = 0;
     bool  hasPeeked   = false;
