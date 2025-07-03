@@ -35,7 +35,7 @@ private:
 
     token getNextToken();         // Consume next token
     token peekToken();            // Look ahead without consuming
-    bool  hasMoreTokens() const;
+    bool  hasMoreTokens() const;  
 
 public:
     const std::string m_input;
@@ -44,7 +44,7 @@ public:
     bool  hasPeeked   = false;
     token cachedToken = token(tokenType::Unknown, "", 0); // Stores the peeked token
 
-    void  skipWhitespace();
+    void  skipWhiteSpace();
     token readIdentifierOrKeyword();
     token readNumber();
     token readStringLiteral();
