@@ -2,8 +2,17 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "abstractSyntaxTree.h"
+#include "Tokenizer.h"
 
-
+void test()
+{
+    tokenizer tokenizer("INSERT INTO students VALUES ('Alice', 20);");
+    while (tokenizer.hasMoreTokens()) {
+        token t = tokenizer.getNextToken();
+        std::cout << "Token: " << t.text << " | Type: " << static_cast<int>(t.type) << "\n";
+    }
+}
 std::vector<std::string> tokenize(const std::string& input) 
 {
     std::stringstream ss(input);
@@ -45,6 +54,10 @@ void executeQuery(const std::string& input) {
     else if (command == "DROP")
     {
         std::cout << "[DROP] Not yet implemented\n";
+    }
+    else if (command == "TEST")
+    {
+        test();
     }
     else 
     {

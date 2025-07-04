@@ -76,8 +76,7 @@ token tokenizer::readIdentifierOrKeyword()
 
 	std::string queryWord = m_input.substr(start, position - start);
 	if (queryWord == "CREATE" || queryWord == "INSERT" || queryWord == "SELECT" ||
-		queryWord == "DELETE" || queryWord == "DROP" || queryWord == "TABLE" || 
-		queryWord == "INDEX") 
+		queryWord == "DELETE" || queryWord == "DROP") 
 	{
 		return token(tokenType::keyword, queryWord, start);
 	} 
