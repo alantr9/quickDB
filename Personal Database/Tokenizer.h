@@ -22,7 +22,7 @@ struct token
 {
     tokenType   type;
     std::string text;
-    size_t      position; // position in token
+    size_t      position; // starting position in token
 
     token(tokenType t, std::string val, size_t pos)
         : type(t), text(std::move(val)), position(pos) {}
