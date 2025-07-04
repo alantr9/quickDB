@@ -73,3 +73,7 @@ token tokenizer::readStringLiteral()
 	return token(tokenType::stringLiteral, strLiteral, start - 1);
 }
 
+token tokenizer::readSymbol()
+{
+	return token(tokenType::symbol, std::string(1, m_input[position++]), position - 1);
+}
