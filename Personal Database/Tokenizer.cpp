@@ -49,3 +49,27 @@ token tokenizer::readNumber()
 	return token(tokenType::numberLiteral, m_input.substr(start, position - start), start);
 }
 
+token tokenizer::readStringLiteral()
+{
+	char quoteType = m_input[position];
+	size_t start = ++position;
+	while (position < m_input.size() && m_input[position] != quoteType)
+	{
+		++position;
+	}
+
+	std::string strLiteral = m_input.substr(start, position - start);
+
+	// Chek if we reached the end of the input without finding the closing quote
+	if (position >= m_input.size() || m_input[position] != quoteType) 
+	{
+		std::cerr << "Error: Unterminated string literal at position " << start << std::endl;
+		return token(tokenType::Unknown, strLiteral, start - 1);
+	}
+
+	// Move past the closing quote
+	++position;
+
+	return token(tokenType::stringLiteral, strLiteral, start - 1);
+}
+
