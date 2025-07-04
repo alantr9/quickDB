@@ -4,6 +4,54 @@
 tokenizer::tokenizer(const std::string& input) :
 	m_input{ input } {};
 
+token tokenizer::getNextToken()
+{
+	if (hasPeeked)
+	{
+		hasPeeked = false;
+		return cachedToken;
+	}
+	skipWhiteSpace();
+
+
+	if (position >= m_input.size()) 
+	{
+		return token(tokenType::endOfFile, "", position);
+	}
+
+	if (std::isalpha(m_input[position]) || m_input[position] == '_') 
+	{
+		return readIdentifierOrKeyword();
+	} 
+	else if (std::isdigit(m_input[position])) 
+	{
+		return readNumber();
+	} 
+	else if (m_input[position] == '\'' || m_input[position] == '"') 
+	{
+		return readStringLiteral();
+	} 
+	else if (std::ispunct(m_input[position])) 
+	{
+		return readSymbol();
+	} 
+	else 
+	{
+		std::cerr << "Error: Unknown character '" << m_input[position] << "' at position " << position << "\n";
+		return token(tokenType::Unknown, std::string(1, m_input[position++]), position - 1);
+	}
+}
+
+token tokenizer::peekToken()
+{
+	if (hasPeeked == false)
+	{
+		cachedToken = getNextToken();
+		hasPeeked = true;
+	}
+	return cachedToken;
+}
+
 void tokenizer::skipWhiteSpace()
 {
 	while (position < m_input.size() && std::isspace(m_input[position])) 
