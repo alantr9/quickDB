@@ -4,12 +4,13 @@
 #include <sstream>
 #include "abstractSyntaxTree.h"
 #include "Tokenizer.h"
+#include "Parser.h"
 
 void test()
 {
-    tokenizer tokenizer("INSERT INTO students VALUES ('Alice', 20);");
-    while (tokenizer.hasMoreTokens()) {
-        token t = tokenizer.getNextToken();
+    tokenizer tokenizerTest("INSERT INTO students VALUES ('Alice', 20);");
+    while (tokenizerTest.hasMoreTokens()) {
+        token t = tokenizerTest.getNextToken();
         std::cout << "Token: " << t.text << " | Type: " << static_cast<int>(t.type) << "\n";
     }
 }
@@ -46,10 +47,6 @@ void executeQuery(const std::string& input) {
     else if (command == "SELECT") 
     {
         std::cout << "[SELECT] Not yet implemented\n";
-    }
-    else if (command == "CREATE TABLE")
-    {
-        std::cout << "[CREATE TABLE] Not yet implemented\n";
     }
     else if (command == "DELETE")
     {
