@@ -78,7 +78,8 @@ std::unique_ptr<SQLCommand> parser::parseDelete()
 	throw std::runtime_error("parseDelete not implemented");
 }
 
-std::unique_ptr<SQLCommand> parser::parseDropTable() {
+std::unique_ptr<SQLCommand> parser::parseDropTable() 
+{
 	throw std::runtime_error("parseDropTable not implemented");
 }
 
