@@ -20,8 +20,9 @@ std::unique_ptr<SQLCommand> parser::parseCommand()
 		tokenHead.getNextToken();
 		token nextToken = tokenHead.peekToken();
 
-		if (nextToken.text == "TABLE") return parseCreateTable();
-		if (nextToken.text == "INDEX") return parseCreateIndex();
+		if (nextToken.text == "DATABASE") return parseCreateDatabase();
+		if (nextToken.text == "TABLE")	  return parseCreateTable();
+		if (nextToken.text == "INDEX")	  return parseCreateIndex();
 	}
 	else if (keyWord == "INSERT")
 	{
@@ -46,3 +47,14 @@ std::unique_ptr<SQLCommand> parser::parseCommand()
 
 	throw std::runtime_error("Unknown Command");
 }
+
+/*
+std::unique_ptr<SQLCommand> parser::parseCreateIndex()
+{
+	auto sqlcmd{ std::make_unique<createIndex>() };
+	
+	token currentToken = tokenHead.getNextToken();
+	sqlcmd->tableName{ currentToken };
+
+}
+*/
