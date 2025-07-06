@@ -34,20 +34,20 @@ private:
     const std::string m_input;
 
     size_t position = 0;
-    bool  hasPeeked = false;
-    token cachedToken = token(tokenType::Unknown, "", 0); // Stores the peeked token
+    bool   hasPeeked = false;
+    token  cachedToken = token(tokenType::Unknown, "", 0); // Stores the peeked token
 
-    void  skipWhiteSpace();
-    token readIdentifierOrKeyword();
-    token readNumber();
-    token readStringLiteral();
-    token readSymbol();
+    void   skipWhiteSpace();
+    token  readIdentifierOrKeyword();
+    token  readNumber();
+    token  readStringLiteral();
+    token  readSymbol();
 
 public:
     explicit tokenizer(const std::string& input);
-    token getNextToken();         // Consume next token
-    token peekToken();            // Look ahead without consuming
-    bool  hasMoreTokens() const;
+    token    getNextToken();         // Consume next token
+    token    peekToken();            // Look ahead without consuming
+    bool     hasMoreTokens() const;
 };
 
 #endif 
