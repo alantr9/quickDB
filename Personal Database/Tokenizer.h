@@ -45,9 +45,10 @@ private:
 
 public:
     explicit tokenizer(const std::string& input);
-    token getNextToken();         // Consume next token
-    token peekToken();            // Look ahead without consuming
-    bool  hasMoreTokens() const;
+
+    token    getNextToken();         // Consume next token
+    token    peekToken();            // Look ahead without consuming
+    bool     hasMoreTokens() const;
 };
 
 #endif 

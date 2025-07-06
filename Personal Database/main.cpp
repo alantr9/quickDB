@@ -47,6 +47,10 @@ void executeQuery(const std::string& input) {
     {
         std::cout << "[SELECT] Not yet implemented\n";
     }
+    else if (command == "CREATE TABLE")
+    {
+        std::cout << "[CREATE TABLE] Not yet implemented\n";
+    }
     else if (command == "DELETE")
     {
         std::cout << "[DELETE] Not yet implemented\n";
