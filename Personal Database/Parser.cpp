@@ -48,6 +48,40 @@ std::unique_ptr<SQLCommand> parser::parseCommand()
 	throw std::runtime_error("Unknown Command");
 }
 
+std::unique_ptr<SQLCommand> parser::parseCreateDatabase() 
+{
+	throw std::runtime_error("parseCreateDatabase not implemented");
+}
+
+std::unique_ptr<SQLCommand> parser::parseCreateTable() 
+{
+	throw std::runtime_error("parseCreateTable not implemented");
+}
+
+std::unique_ptr<SQLCommand> parser::parseCreateIndex() 
+{
+	throw std::runtime_error("parseCreateIndex not implemented");
+}
+
+std::unique_ptr<SQLCommand> parser::parseInsert() 
+{
+	throw std::runtime_error("parseInsert not implemented");
+}
+
+std::unique_ptr<SQLCommand> parser::parseSelect() 
+{
+	throw std::runtime_error("parseSelect not implemented");
+}
+
+std::unique_ptr<SQLCommand> parser::parseDelete() 
+{
+	throw std::runtime_error("parseDelete not implemented");
+}
+
+std::unique_ptr<SQLCommand> parser::parseDropTable() {
+	throw std::runtime_error("parseDropTable not implemented");
+}
+
 /*
 std::unique_ptr<SQLCommand> parser::parseCreateIndex()
 {
