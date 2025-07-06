@@ -6,7 +6,7 @@
 #include "Tokenizer.h"
 #include "abstractSyntaxTree.h"
 
-class Parser {
+class parser {
 private:
     tokenizer tokenHead;
 
@@ -20,10 +20,9 @@ private:
     token expect(tokenType expectedType, const std::string& expectedText = "");
     bool  match(tokenType type, const std::string& text = "");
 public:
-    explicit Parser(tokenizer tokenizer);
+    explicit parser(const tokenizer& token);
 
-    std::unique_ptr<SQLCommand> parse();  // Main entry point
-
+    std::unique_ptr<SQLCommand> parseCommand();  // Main entry point
 };
 
 #endif 
