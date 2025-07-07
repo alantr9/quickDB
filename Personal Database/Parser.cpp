@@ -20,9 +20,21 @@ std::unique_ptr<SQLCommand> parser::parseCommand()
 		tokenHead.getNextToken();
 		token nextToken = tokenHead.peekToken();
 
-		if (nextToken.text == "DATABASE") return parseCreateDatabase();
-		if (nextToken.text == "TABLE")	  return parseCreateTable();
-		if (nextToken.text == "INDEX")	  return parseCreateIndex();
+		if (nextToken.text == "DATABASE")
+		{
+			tokenHead.getNextToken();
+			return parseCreateDatabase();
+		}
+		if (nextToken.text == "TABLE")
+		{
+			tokenHead.getNextToken();
+			return parseCreateTable();
+		}
+		if (nextToken.text == "INDEX")
+		{
+			tokenHead.getNextToken();
+			return parseCreateIndex();
+		}
 	}
 	else if (keyWord == "INSERT")
 	{

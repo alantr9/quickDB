@@ -5,6 +5,7 @@
 #include "abstractSyntaxTree.h"
 #include "Tokenizer.h"
 #include "Parser.h"
+#include "Manager.h"
 
 void test()
 {
@@ -14,86 +15,31 @@ void test()
         std::cout << "Token: " << t.text << " | Type: " << static_cast<int>(t.type) << "\n";
     }
 }
-std::vector<std::string> tokenize(const std::string& input) 
-{
-    std::stringstream ss(input);
-    std::vector<std::string> tokenVector;
-    std::string token;
-
-    // Add CLI strings to tokenVector
-    while (ss >> token) 
-    {
-        tokenVector.push_back(token);
-    }
-
-    return tokenVector;
-}
 
 
-void executeQuery(const std::string& input) {
-    auto tokens { tokenize(input) };
-    if (tokens.empty()) return;
+int main(int argc, char* argv[]) {
+    std::cout << "Welcome to Alan's SQLite! No database opened yet.\n";
+    manager manager;
 
-    std::string command{ tokens[0] };
+    std::string inputLine;
+    while (true) {
+        std::cout << (manager.hasOpenDatabase() ? manager.getCurrentDatabase() + "> " : "sqlite> ");
 
-    if (command == "CREATE") 
-    {
-        std::cout << "[CREATE] Not yet implemented\n";
-    }
-    else if (command == "INSERT") 
-    {
-        std::cout << "[INSERT] Not yet implemented\n";
-    }
-    else if (command == "SELECT") 
-    {
-        std::cout << "[SELECT] Not yet implemented\n";
-    }
-    else if (command == "DELETE")
-    {
-        std::cout << "[DELETE] Not yet implemented\n";
-    }
-    else if (command == "DROP")
-    {
-        std::cout << "[DROP] Not yet implemented\n";
-    }
-    else if (command == "TEST")
-    {
-        test();
-    }
-    else 
-    {
-        std::cout << "[ERROR] Unknown command: " << command << "\n";
-    }
-}
+        if (!std::getline(std::cin, inputLine)) break;  // EOF or error
+        if (inputLine.empty()) continue;
+        if (inputLine == "exit;" || inputLine == "quit;") break;
 
-int main(int argc, char* argv[]) // Personal Data.sln -> Properties -> Configure Properties -> Debugging -> Command Arguments
-{ 
-    if (argc < 2) 
-    {
-        std::cerr << "Usage: " << argv[0] << " <database_file>\n";
-        return 1;
-    }
+        try {
+            tokenizer tokenizerObj(inputLine);
+            parser parserObj(tokenizerObj);
 
-    std::string dbFilename{ argv[1] };
-    std::cout << "Opening database: " << dbFilename << "\n";
+            auto commandAST = parserObj.parseCommand();
 
-    std::string input;
-    std::cout << "SQLite CLI (type 'exit;' to quit)\n";
-
-    while (true) 
-    {
-        std::cout << "sqlite> ";
-        std::getline(std::cin, input);
-
-        if (input == "exit;" || input == "quit;") 
-        {
-            break;
+            manager.execute(std::move(commandAST));
         }
-
-        executeQuery(input);
+        catch (const std::exception& err) {
+            std::cerr << "Error: " << err.what() << "\n";
+        }
     }
-
     return 0;
 }
-
-
