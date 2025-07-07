@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Parser.h"
-#include "Tokenizer.h"
+
 
 parser::parser(const tokenizer& token) :
 	tokenHead{ token } {}; // Maybe optimzed using std::move()
@@ -60,6 +60,7 @@ std::unique_ptr<SQLCommand> parser::parseCommand()
 	throw std::runtime_error("Unknown Command");
 }
 
+
 std::unique_ptr<SQLCommand> parser::parseCreateDatabase() 
 {
 	auto sqlcmd{ std::make_unique<createDatabase>() };
@@ -69,9 +70,63 @@ std::unique_ptr<SQLCommand> parser::parseCreateDatabase()
 	return sqlcmd;
 }
 
+// Current: Must support INT,TEXT,DATE,TIMESTAMP,BOOLEAN,DECIMAL, VARCHAR()
 std::unique_ptr<SQLCommand> parser::parseCreateTable() 
 {
-	throw std::runtime_error("parseCreateTable not implemented");
+	auto sqlcmd{ std::make_unique<createTable>() };
+	token currentToken{ tokenHead.getNextToken() };
+	sqlcmd->tableName = currentToken.text;
+
+	// Parsing Columnn Names + datatypes
+	currentToken = tokenHead.getNextToken();
+	if (currentToken.text != "(")
+		throw std::runtime_error("Expected '(' after table name");
+
+	while (true) 
+	{
+		token colNameToken = tokenHead.getNextToken();
+		if (colNameToken.type != tokenType::identifier)
+			throw std::runtime_error("Expected column name");
+
+		token dataTypeToken = tokenHead.getNextToken();
+		if (dataTypeToken.type != tokenType::identifier && dataTypeToken.type != tokenType::keyword)
+			throw std::runtime_error("Expected data type for column");
+
+		std::string dataType = dataTypeToken.text;
+		token nextToken = tokenHead.peekToken();
+		if (nextToken.text == "(") 
+		{
+			tokenHead.getNextToken(); 
+			token sizeToken = tokenHead.getNextToken(); 
+			if (sizeToken.type != tokenType::numberLiteral)
+				throw std::runtime_error("Expected size for data type");
+			token closingParen = tokenHead.getNextToken();
+			if (closingParen.text != ")")
+				throw std::runtime_error("Expected ')' after size");
+			dataType += "(" + sizeToken.text + ")";
+		}
+		
+
+		sqlcmd->columns.emplace_back(colNameToken.text, dataTypeToken.text);
+
+		nextToken = tokenHead.peekToken();
+		if (nextToken.text == ",") 
+		{
+			tokenHead.getNextToken(); 
+			continue;
+		}
+		else if (nextToken.text == ")") 
+		{
+			tokenHead.getNextToken(); 
+			break;
+		}
+		else 
+		{
+			throw std::runtime_error("Expected ',' or ')' after column definition");
+		}
+	}
+
+	return sqlcmd;
 }
 
 std::unique_ptr<SQLCommand> parser::parseCreateIndex() 

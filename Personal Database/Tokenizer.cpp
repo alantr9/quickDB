@@ -69,13 +69,13 @@ token tokenizer::readIdentifierOrKeyword()
 {
 	size_t start = position;
 	// Reads one word in the the query
-	while(position < m_input.size() && (std::isalnum(m_input[position]) || m_input[position] == '_')) 
+	while(position < m_input.size() && (std::isalnum(m_input[position]) || m_input[position] == '_' || m_input[position] == ','))
 	{
 		++position;
 	}	
 
 	std::string queryWord = m_input.substr(start, position - start);
-	if (queryWord == "CREATE" || queryWord == "INSERT" || queryWord == "SELECT" ||
+	if (queryWord == "CREATE" || queryWord == "INSERT" || queryWord == "SELECT" || 
 		queryWord == "DELETE" || queryWord == "DROP") 
 	{
 		return token(tokenType::keyword, queryWord, start);

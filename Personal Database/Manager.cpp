@@ -28,8 +28,10 @@ void manager::dbLogger(std::string name)
         }
     }
 
-    if (isFound)
+    if (!isFound)
         databaseNames.push_back(name);
+    else
+        std::cout << "Database already exists";
 }
 
 void manager::execute(std::unique_ptr<SQLCommand> cmd) 
@@ -38,13 +40,12 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
     if (cmd->type() == commandType::CREATE_DATABASE) 
     { 
-        // createDatabase type
         auto* cdb = dynamic_cast<createDatabase*>(cmd.get());
         if (cdb) 
         {
             currentDB = cdb->dbName;
             dbLogger(currentDB);
-            std::cout << "Database '" << currentDB << "' created and opened.\n";
+            std::cout << "Database '" << currentDB << "' created/opened.\n";
         }
     }
     else 
@@ -54,7 +55,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             std::cout << "No database opened. Please create or open a database first.\n";
             return;
         }
-
-        std::cout << "Executing command on database: " << currentDB << "\n";
     }
+
+
 }
