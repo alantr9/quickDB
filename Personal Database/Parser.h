@@ -20,6 +20,7 @@ private:
 
     token expect(tokenType expectedType, const std::string& expectedText = "");
     bool  match(tokenType type, const std::string& text = "");
+
 public:
     explicit parser(const tokenizer& token);
 

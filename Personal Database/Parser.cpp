@@ -153,14 +153,3 @@ std::unique_ptr<SQLCommand> parser::parseDropTable()
 {
 	throw std::runtime_error("parseDropTable not implemented");
 }
-
-/*
-std::unique_ptr<SQLCommand> parser::parseCreateIndex()
-{
-	auto sqlcmd{ std::make_unique<createIndex>() };
-	
-	token currentToken = tokenHead.getNextToken();
-	sqlcmd->tableName{ currentToken };
-
-}
-*/

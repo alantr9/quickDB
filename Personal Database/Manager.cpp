@@ -57,5 +57,16 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         }
     }
 
+    if (cmd->type() == commandType::CREATE_TABLE)
+    {
+        auto* cdb = dynamic_cast<createTable*>(cmd.get());
+        
+        if(hasOpenDatabase() == false) 
+        {
+            std::cout << "No database opened. Please create or open a database first.\n";
+            return;
+        }
 
+        // How to store this
+    }
 }

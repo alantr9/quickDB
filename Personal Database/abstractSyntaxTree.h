@@ -43,7 +43,6 @@ struct createTable : SQLCommand
     commandType type() const override { return commandType::CREATE_TABLE; }
 };
 
-
 struct insertCommand : SQLCommand 
 {
     std::string tableName;
@@ -51,7 +50,6 @@ struct insertCommand : SQLCommand
 
     commandType type() const override { return commandType::INSERT; }
 };
-
 
 struct selectCommand : SQLCommand 
 {
@@ -62,7 +60,6 @@ struct selectCommand : SQLCommand
     commandType type() const override { return commandType::SELECT; }
 };
 
-
 struct createIndex : SQLCommand 
 {
     std::string tableName;
@@ -70,7 +67,6 @@ struct createIndex : SQLCommand
 
     commandType type() const override { return commandType::CREATE_INDEX; }
 };
-
 
 struct deleteCommand : SQLCommand 
 {
@@ -80,7 +76,6 @@ struct deleteCommand : SQLCommand
 
     commandType type() const override { return commandType::DELETE; }
 };
-
 
 struct dropTable: SQLCommand 
 {

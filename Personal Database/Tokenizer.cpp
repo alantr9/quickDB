@@ -69,7 +69,7 @@ token tokenizer::readIdentifierOrKeyword()
 {
 	size_t start = position;
 	// Reads one word in the the query
-	while(position < m_input.size() && (std::isalnum(m_input[position]) || m_input[position] == '_' || m_input[position] == ','))
+	while(position < m_input.size() && (std::isalnum(m_input[position]) || m_input[position] == '_'))
 	{
 		++position;
 	}	
