@@ -50,7 +50,11 @@ std::unique_ptr<SQLCommand> parser::parseCommand()
 
 std::unique_ptr<SQLCommand> parser::parseCreateDatabase() 
 {
-	throw std::runtime_error("parseCreateDatabase not implemented");
+	auto sqlcmd{ std::make_unique<createDatabase>() };
+	token currentToken{ tokenHead.getNextToken() };
+	sqlcmd->dbName = currentToken.text;
+	
+	return sqlcmd;
 }
 
 std::unique_ptr<SQLCommand> parser::parseCreateTable() 
