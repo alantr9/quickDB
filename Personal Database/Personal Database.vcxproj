@@ -132,6 +132,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Manager.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="testCode.cpp" />
     <ClCompile Include="Tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
