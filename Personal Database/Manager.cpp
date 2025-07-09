@@ -34,7 +34,7 @@ void manager::dbLogger(std::string name)
 
     if (isFound) 
     {
-        std::cout << "Database is opened \n";
+        std::cout << "Database already exists. \n";
         return;
 	}
     else if (!isFound)
@@ -62,6 +62,27 @@ void manager::dbLogger(std::string name)
 void manager::execute(std::unique_ptr<SQLCommand> cmd) 
 {
     if (!cmd) return;
+
+    /*************************/
+     /*  OPEN DB COMMAND */
+    /*************************/
+
+    if(cmd->type() == commandType::OPEN) 
+    {
+        auto* cdb = dynamic_cast<openCommand*>(cmd.get());
+        if (cdb) 
+        {
+            if (currentDB == cdb->dbName) 
+            {
+                std::cout << "Database already opened: " << cdb->dbName << "\n";
+            } 
+            else 
+            {
+				currentDB = cdb->dbName;
+                return;
+            }
+        } 
+	}
 
     /*************************/
       /*  CREATE DB COMMAND */
