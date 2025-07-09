@@ -93,12 +93,11 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
     }
-    
 
     /*************************/
     /*  CREATE TABLE COMMAND */
 	/*************************/
-    namespace fs = std::filesystem;
+    
 
     if (cmd->type() == commandType::CREATE_TABLE)
     {
@@ -120,5 +119,24 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
 
+        fs::path csvPath = dbFolder / (cdb->tableName + ".csv");
+        std::ofstream csvFile(csvPath);
+        if (!csvFile)
+        {
+            std::cerr << "Failed to create CSV file: " << csvPath << "\n";
+            return;
+        }
+
+
+        for (size_t i = 0; i < cdb->columns.size(); ++i)
+        {
+            csvFile << cdb->columns[i].first << " " << cdb->columns[i].second;
+            if (i < cdb->columns.size() - 1)
+                csvFile << ",";
+        }
+        csvFile << "\n";
+        csvFile.close();
+
+        std::cout << "Table created with CSV file: " << csvPath << "\n";
     }
 }
