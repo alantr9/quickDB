@@ -93,12 +93,11 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
     }
-    
 
     /*************************/
     /*  CREATE TABLE COMMAND */
 	/*************************/
-    namespace fs = std::filesystem;
+    
 
     if (cmd->type() == commandType::CREATE_TABLE)
     {
@@ -120,5 +119,71 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
 
+        fs::path csvPath = dbFolder / (cdb->tableName + ".csv");
+        std::ofstream csvFile(csvPath);
+        if (!csvFile)
+        {
+            std::cerr << "Failed to create CSV file: " << csvPath << "\n";
+            return;
+        }
+
+
+        for (size_t i = 0; i < cdb->columns.size(); ++i)
+        {
+            csvFile << cdb->columns[i].first << " " << cdb->columns[i].second;
+            if (i < cdb->columns.size() - 1)
+                csvFile << ",";
+        }
+        csvFile << "\n";
+        csvFile.close();
+
+        std::cout << "Table created with CSV file: " << csvPath << "\n";
     }
+
+   /*************************/
+   /*  SELECT COMMAND */
+   /*************************/
+   
+    if (cmd->type() == commandType::SELECT) 
+    {
+        auto* scmd = dynamic_cast<selectCommand*>(cmd.get());
+
+        if (!hasOpenDatabase())
+        {
+            std::cout << "No database opened. Please create or open a database first.\n";
+            return;
+        }
+
+        if (!scmd)
+        {
+            std::cout << "Invalid SELECT command.\n";
+            return;
+        }
+
+        fs::path tablePath = fs::path("./databases") / currentDB / (scmd->tableName + ".csv");
+
+        if (!fs::exists(tablePath))
+        {
+            std::cerr << "Table does not exist: " << scmd->tableName << "\n";
+            return;
+        }
+
+        std::ifstream tableFile(tablePath);
+        if (!tableFile)
+        {
+            std::cerr << "Failed to open table file: " << tablePath << "\n";
+            return;
+        }
+
+        std::string line;
+        while (std::getline(tableFile, line))
+        {
+            std::cout << line << "\n";
+        }
+
+        tableFile.close();
+    }
+
+
+
 }
