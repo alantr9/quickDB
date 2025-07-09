@@ -2,6 +2,8 @@
 #include <string>
 #include "Manager.h"
 
+namespace fs = std::filesystem;
+
 manager::manager() :
     currentDB("") {};
 
@@ -74,18 +76,19 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         {
 			std::cout << "Database already opened: " << cdb->dbName << "\n";
 		}
+
         else if (cdb) 
         {
             currentDB = cdb->dbName;
             dbLogger(currentDB);
         }
-
         else
         {
             std::cout << "No database opened. Please create or open a database first.\n";
             return;
         }
     }
+    
 
     /*************************/
     /*  CREATE TABLE COMMAND */
@@ -102,18 +105,24 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
 
-        else if(cdb)
+        fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);  // ?? main fix
+        std::error_code ec;
+        fs::create_directories(dbFolder, ec);
+        if (ec)
         {
-            std::filesystem::path currentPath = std::filesystem::current_path();
-            std::string filePath = (currentPath /  (currentDB + ".csv")).string();
-
-            std::ofstream tableFile(filePath, std::ios::app);
+            std::cerr << "Failed to create database directory: " << ec.message() << "\n";
+            return;
         }
+
+        fs::path csvPath = dbFolder / (cdb->tableName + ".csv");
+
+        std::ofstream csvFile(csvPath);
+        if (!csvFile)
+        {
+            std::cerr << "Failed to create CSV file: " << csvPath << "\n";
+            return;
+        }
+
+
     }
-
-	/*************************/
-	    /*  INSERT COMMAND */
-	/*************************/
-
-
-}
+}  

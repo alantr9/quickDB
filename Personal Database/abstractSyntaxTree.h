@@ -28,6 +28,12 @@ struct SQLCommand
 };
 
 // Child Structs that will overtide commandType type() const
+struct openCommand : SQLCommand 
+{
+    std::string dbName;
+    commandType type() const override { return commandType::OPEN; }
+};
+
 struct createDatabase : SQLCommand
 {
     std::string dbName;
