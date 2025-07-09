@@ -76,7 +76,7 @@ std::unique_ptr<SQLCommand> parser::parseCreateTable()
 	auto sqlcmd{ std::make_unique<createTable>() };
 	token currentToken{ tokenHead.getNextToken() };
 	sqlcmd->tableName = currentToken.text;
-
+	
 	if( !tokenHead.hasMoreTokens() || tokenHead.peekToken().text != "(")
 	{
 		throw std::runtime_error("Expected '(' after table name");
