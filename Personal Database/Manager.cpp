@@ -135,15 +135,6 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             std::cerr << "Failed to create database directory: " << ec.message() << "\n";
             return;
         }
-        //fs = filesystem 
-        fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);  // ?? main fix
-        std::error_code ec;
-        fs::create_directories(dbFolder, ec);
-        if (ec)
-        {
-            std::cerr << "Failed to create database directory: " << ec.message() << "\n";
-            return;
-        }
 
     }
 }
