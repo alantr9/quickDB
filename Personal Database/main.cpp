@@ -2,13 +2,15 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include "abstractSyntaxTree.h"
 #include "Tokenizer.h"
 #include "Parser.h"
 #include "Manager.h"
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) 
+{
     std::cout << "Welcome to Alan's SQLite! No database opened yet.\n";
     manager manager;
 

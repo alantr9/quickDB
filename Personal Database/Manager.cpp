@@ -18,44 +18,66 @@ std::string manager::getCurrentDatabase() const
 void manager::dbLogger(std::string name)
 {
     bool isFound{ false };
-
-    for (auto i : databaseNames) 
+	std::string currName;
+    std::ifstream searchFile("databaseNames.csv");
+    
+    while(std::getline(searchFile, currName)) 
     {
-        if (i == name) 
+        if (currName == currentDB + ",")
         {
             isFound = true;
             break;
         }
-    }
+	}
+    searchFile.close();
 
-    if (!isFound)
-        databaseNames.push_back(name);
+    if (isFound) 
+    {
+        std::cout << "Database already exists. \n";
+        return;
+	}
+    else if (!isFound)
+    {
+        std::ofstream writeFile("databaseNames.csv", std::ios::app); // Append mode
+		writeFile << name << ",\n";
+        writeFile.close();
+        std::cout << "Database created/opened: " << name << "\n";
+    }
     else
-        std::cout << "Database already exists";
+        std::cout << "Error opening file." << "\n";
 }
 
 void manager::execute(std::unique_ptr<SQLCommand> cmd) 
 {
     if (!cmd) return;
 
+    /*************************/
+      /*  CREATE DB COMMAND */
+    /*************************/
+
     if (cmd->type() == commandType::CREATE_DATABASE) 
     { 
         auto* cdb = dynamic_cast<createDatabase*>(cmd.get());
-        if (cdb) 
+		// Future: Check if database already opened or needs to be switched
+        if (cdb && currentDB == cdb->dbName) 
+        {
+			std::cout << "Database already opened: " << cdb->dbName << "\n";
+		}
+        else if (cdb) 
         {
             currentDB = cdb->dbName;
             dbLogger(currentDB);
-            std::cout << "Database '" << currentDB << "' created/opened.\n";
         }
     }
     else 
     {
-        if (hasOpenDatabase() == false) 
-        {
-            std::cout << "No database opened. Please create or open a database first.\n";
-            return;
-        }
+        std::cout << "No database opened. Please create or open a database first.\n";
+        return;
     }
+
+    /*************************/
+    /*  CREATE TABLE COMMAND */
+	/*************************/
 
     if (cmd->type() == commandType::CREATE_TABLE)
     {
@@ -67,6 +89,5 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
 
-        // How to store this
     }
 }

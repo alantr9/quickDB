@@ -48,4 +48,7 @@
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="databaseNames.csv" />
+  </ItemGroup>
 </Project>
