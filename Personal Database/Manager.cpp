@@ -33,7 +33,7 @@ void manager::dbLogger(std::string name)
 
     if (isFound) 
     {
-        std::cout << "Database already exists. \n";
+        std::cout << "Database is opened \n";
         return;
 	}
     else if (!isFound)
@@ -41,7 +41,18 @@ void manager::dbLogger(std::string name)
         std::ofstream writeFile("databaseNames.csv", std::ios::app); // Append mode
 		writeFile << name << ",\n";
         writeFile.close();
-        std::cout << "Database created/opened: " << name << "\n";
+        std::cout << "Database created: " << name << "\n";
+
+        try
+        {
+            std::filesystem::create_directory(currentDB);
+        }
+        catch (const std::filesystem::filesystem_error& e)
+        {
+            std::cerr << "Error creating database directory: " << e.what() << "\n";
+            return;
+        }
+
     }
     else
         std::cout << "Error opening file." << "\n";
@@ -68,11 +79,12 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             currentDB = cdb->dbName;
             dbLogger(currentDB);
         }
-    }
-    else 
-    {
-        std::cout << "No database opened. Please create or open a database first.\n";
-        return;
+
+        else
+        {
+            std::cout << "No database opened. Please create or open a database first.\n";
+            return;
+        }
     }
 
     /*************************/
@@ -86,8 +98,22 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         if(hasOpenDatabase() == false) 
         {
             std::cout << "No database opened. Please create or open a database first.\n";
+			std::cout << currentDB << "\n";
             return;
         }
 
+        else if(cdb)
+        {
+            std::filesystem::path currentPath = std::filesystem::current_path();
+            std::string filePath = (currentPath /  (currentDB + ".csv")).string();
+
+            std::ofstream tableFile(filePath, std::ios::app);
+        }
     }
+
+	/*************************/
+	    /*  INSERT COMMAND */
+	/*************************/
+
+
 }

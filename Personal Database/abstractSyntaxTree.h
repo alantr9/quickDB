@@ -10,6 +10,7 @@
 
 enum class commandType
 {
+    OPEN,
     CREATE_DATABASE,
     CREATE_TABLE,
     INSERT,
