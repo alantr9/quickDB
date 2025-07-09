@@ -139,4 +139,56 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
         std::cout << "Table created with CSV file: " << csvPath << "\n";
     }
+
+   /*************************/
+   /*  SELECT COMMAND */
+   /*************************/
+   
+    if (cmd->type() == commandType::SELECT) 
+    {
+        auto* scmd = dynamic_cast<selectCommand*>(cmd.get());
+
+        if (!hasOpenDatabase())
+        {
+            std::cout << "No database opened. Please create or open a database first.\n";
+            return;
+        }
+
+        if (!scmd)
+        {
+            std::cout << "Invalid SELECT command.\n";
+            return;
+        }
+
+        fs::path tablePath = fs::path("./databases") / currentDB / (scmd->tableName + ".csv");
+
+        if (!fs::exists(tablePath))
+        {
+            std::cerr << "Table does not exist: " << scmd->tableName << "\n";
+            return;
+        }
+
+        std::ifstream tableFile(tablePath);
+        if (!tableFile)
+        {
+            std::cerr << "Failed to open table file: " << tablePath << "\n";
+            return;
+        }
+
+        std::string line;
+        while (std::getline(tableFile, line))
+        {
+            std::cout << line << "\n";
+        }
+
+        tableFile.close();
+    }
+
+    /*************************/
+   /*  INSERT COMMAND */
+   /*************************/
+
+
+
+
 }
