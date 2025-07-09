@@ -10,6 +10,7 @@ class parser {
 private:
     tokenizer tokenHead;
 
+    std::unique_ptr<SQLCommand> parseOpenDatabase();
     std::unique_ptr<SQLCommand> parseCreateDatabase();
     std::unique_ptr<SQLCommand> parseCreateTable();
     std::unique_ptr<SQLCommand> parseInsert();

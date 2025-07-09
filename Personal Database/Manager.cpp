@@ -2,7 +2,7 @@
 #include <string>
 #include "Manager.h"
 
-
+namespace fs = std::filesystem;
 
 manager::manager() :
     currentDB("") {};
@@ -35,7 +35,7 @@ void manager::dbLogger(std::string name)
 
     if (isFound) 
     {
-        std::cout << "Database already exists. \n";
+        std::cout << "Database is opened \n";
         return;
 	}
     else if (!isFound)
@@ -43,7 +43,18 @@ void manager::dbLogger(std::string name)
         std::ofstream writeFile("databaseNames.csv", std::ios::app); // Append mode
 		writeFile << name << ",\n";
         writeFile.close();
-        std::cout << "Database created/opened: " << name << "\n";
+        std::cout << "Database created: " << name << "\n";
+
+        try
+        {
+            std::filesystem::create_directory(currentDB);
+        }
+        catch (const std::filesystem::filesystem_error& e)
+        {
+            std::cerr << "Error creating database directory: " << e.what() << "\n";
+            return;
+        }
+
     }
     else
         std::cout << "Error opening file." << "\n";
@@ -91,6 +102,16 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         if(hasOpenDatabase() == false) 
         {
             std::cout << "No database opened. Please create or open a database first.\n";
+			std::cout << currentDB << "\n";
+            return;
+        }
+
+        fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);  // ?? main fix
+        std::error_code ec;
+        fs::create_directories(dbFolder, ec);
+        if (ec)
+        {
+            std::cerr << "Failed to create database directory: " << ec.message() << "\n";
             return;
         }
         //fs = filesystem 
@@ -103,21 +124,5 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
 
-        fs::path csvPath = dbFolder / (cdb->tableName + ".csv");
-
-        std::ofstream csvFile(csvPath);
-        if (!csvFile)
-        {
-            std::cerr << "Failed to create CSV file: " << csvPath << "\n";
-            return;
-        }
-
     }
-
-    /*************************/
-    /*  INSERT COMMAND */
-    /*************************/
-
-
-
-}  
+}

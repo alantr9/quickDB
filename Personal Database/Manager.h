@@ -8,13 +8,13 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <filesystem>
 #include "abstractSyntaxTree.h"
 
 
 class manager {
 private:
     std::string currentDB;
-    std::vector<std::string> databaseNames;
 
 public:
     explicit manager();
