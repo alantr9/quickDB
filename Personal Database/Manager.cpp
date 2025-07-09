@@ -2,7 +2,6 @@
 #include <string>
 #include "Manager.h"
 
-namespace fs = std::filesystem;
 
 manager::manager() :
     currentDB("") {};
