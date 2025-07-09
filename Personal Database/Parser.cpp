@@ -120,7 +120,16 @@ std::unique_ptr<SQLCommand> parser::parseCreateIndex()
 
 std::unique_ptr<SQLCommand> parser::parseInsert() 
 {
-	throw std::runtime_error("parseInsert not implemented");
+	auto sqlcmd{ std::make_unique<insertCommand>() };
+	token currentToken{ tokenHead.getNextToken() };
+
+	if (currentToken.text == "INTO") 
+	{
+		currentToken = tokenHead.getNextToken();
+		sqlcmd->tableName = currentToken.text;
+
+
+	}
 }
 
 std::unique_ptr<SQLCommand> parser::parseSelect() 

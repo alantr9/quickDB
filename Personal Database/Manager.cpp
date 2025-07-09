@@ -184,6 +184,11 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         tableFile.close();
     }
 
+    /*************************/
+   /*  INSERT COMMAND */
+   /*************************/
+
+
 
 
 }
