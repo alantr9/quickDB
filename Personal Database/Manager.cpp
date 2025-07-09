@@ -17,28 +17,33 @@ std::string manager::getCurrentDatabase() const
     return currentDB;
 }
 
-void manager::dbLogger(std::string name)
+bool manager::doesDatabaseExists(const std::string& dbName) const
 {
-    bool isFound{ false };
-	std::string currName;
+    std::string currName;
     std::ifstream searchFile("databaseNames.csv");
-    
-    while(std::getline(searchFile, currName)) 
+
+    while (std::getline(searchFile, currName))
     {
         if (currName == currentDB + ",")
         {
-            isFound = true;
+            return true;
             break;
         }
-	}
+    }
     searchFile.close();
+    return false;
+}
 
-    if (isFound) 
+
+void manager::dbLogger(std::string name)
+{
+
+    if (doesDatabaseExists(name)) 
     {
-        std::cout << "Database already exists. \n";
+        std::cout << "Database opened. \n";
         return;
 	}
-    else if (!isFound)
+    else if (!doesDatabaseExists(name))
     {
         std::ofstream writeFile("databaseNames.csv", std::ios::app); // Append mode
 		writeFile << name << ",\n";
@@ -63,27 +68,6 @@ void manager::dbLogger(std::string name)
 void manager::execute(std::unique_ptr<SQLCommand> cmd) 
 {
     if (!cmd) return;
-
-    /*************************/
-     /*  OPEN DB COMMAND */
-    /*************************/
-
-    if(cmd->type() == commandType::OPEN) 
-    {
-        auto* cdb = dynamic_cast<openCommand*>(cmd.get());
-        if (cdb) 
-        {
-            if (currentDB == cdb->dbName) 
-            {
-                std::cout << "Database already opened: " << cdb->dbName << "\n";
-            } 
-            else 
-            {
-				currentDB = cdb->dbName;
-                return;
-            }
-        } 
-	}
 
     /*************************/
       /*  CREATE DB COMMAND */

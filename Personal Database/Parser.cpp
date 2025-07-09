@@ -15,18 +15,6 @@ std::unique_ptr<SQLCommand> parser::parseCommand()
 	else
 		throw std::runtime_error("Unknown command: " + currentToken.text);
 
-	if (keyWord == "OPEN")
-	{
-		tokenHead.getNextToken();
-		token nextToken = tokenHead.peekToken();
-
-		if(nextToken.text == "DATABASE")
-		{
-			tokenHead.getNextToken();
-			return parseOpenDatabase();
-		}
-	}
-
 	if (keyWord == "CREATE")
 	{
 		tokenHead.getNextToken();
@@ -70,14 +58,6 @@ std::unique_ptr<SQLCommand> parser::parseCommand()
 	}
 
 	throw std::runtime_error("Unknown Command");
-}
-
-std::unique_ptr<SQLCommand> parser::parseOpenDatabase() 
-{
-	auto sqlcmd{ std::make_unique<openCommand>() };
-	token currentToken{ tokenHead.getNextToken() };
-	sqlcmd->dbName = currentToken.text;
-	return sqlcmd;
 }
 
 

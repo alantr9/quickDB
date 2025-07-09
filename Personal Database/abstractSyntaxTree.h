@@ -10,7 +10,6 @@
 
 enum class commandType
 {
-    OPEN,
     CREATE_DATABASE,
     CREATE_TABLE,
     INSERT,
@@ -28,11 +27,6 @@ struct SQLCommand
 };
 
 // Child Structs that will overtide commandType type() const
-struct openCommand : SQLCommand 
-{
-    std::string dbName;
-    commandType type() const override { return commandType::OPEN; }
-};
 
 struct createDatabase : SQLCommand
 {

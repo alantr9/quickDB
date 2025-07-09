@@ -22,6 +22,7 @@ public:
     std::string getCurrentDatabase() const;
     void execute(std::unique_ptr<SQLCommand> cmd);
     void dbLogger(std::string name);
+    bool doesDatabaseExists(const std::string& dbName) const;
 };
 
 
