@@ -127,8 +127,28 @@ std::unique_ptr<SQLCommand> parser::parseInsert()
 	{
 		currentToken = tokenHead.getNextToken();
 		sqlcmd->tableName = currentToken.text;
+		tokenHead.getNextToken(); // Consume '('
 
+		while (tokenHead.hasMoreTokens() || tokenHead.peekToken().text != ")")
+		{
+			currentToken = tokenHead.getNextToken();
+			if (currentToken.type != tokenType::identifier) 
+			{
+				throw std::runtime_error("Expected data");
+			}
+			if (currentToken.type == tokenType::stringLiteral)
+			{
+				sqlcmd->values.push_back(currentToken.text); 
+			}
 
+			sqlcmd->values.push_back(currentToken.text);
+
+			if (tokenHead.peekToken().text == ",") 
+			{
+				tokenHead.getNextToken(); // Consume ','
+				continue;
+			}
+		}
 	}
 }
 
