@@ -130,7 +130,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
         for (size_t i{ 0 }; i < cdb->columns.size(); ++i)
         {
-            csvFile << cdb->columns[i].first << " " << cdb->columns[i].second;
+            csvFile << cdb->columns[i].first;
             if (i < cdb->columns.size() - 1)
                 csvFile << ",";
         }
@@ -138,6 +138,23 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         csvFile.close();
 
         std::cout << "Table created with CSV file: " << csvPath << "\n";
+
+        fs::path metaPath = dbFolder / (cdb->tableName + ".txt"); // to differentiate between .csv files
+        std::ofstream metaFile(metaPath);
+        if (!metaFile)
+        {
+            std::cerr << "Failed to create metadata file: " << metaPath << "\n";
+            return;
+        }
+
+        
+        for (const auto& col : cdb->columns)
+        {
+            metaFile << col.second << "\n";
+        }
+
+        metaFile.close();
+        std::cout << "Metadata file created: " << metaPath << "\n";
     }
 
    /*************************/
