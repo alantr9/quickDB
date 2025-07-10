@@ -96,6 +96,8 @@ token tokenizer::readNumber()
 	return token(tokenType::numberLiteral, m_input.substr(start, position - start), start);
 }
 
+
+
 token tokenizer::readStringLiteral()
 {
 	char quoteType = m_input[position];

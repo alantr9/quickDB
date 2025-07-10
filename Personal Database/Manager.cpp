@@ -112,6 +112,11 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
         fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);  // ?? main fix
         std::error_code ec;
+        if(fs::exists(dbFolder, ec))
+        {
+            std::cerr << "Table Already Exists\n";
+            return;
+		}
         fs::create_directories(dbFolder, ec);
         if (ec)
         {
