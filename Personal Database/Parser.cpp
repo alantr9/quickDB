@@ -139,6 +139,7 @@ std::unique_ptr<SQLCommand> parser::parseInsert()
 			if (currentToken.type == tokenType::stringLiteral)
 			{
 				sqlcmd->values.push_back(currentToken.text); 
+				continue;
 			}
 
 			sqlcmd->values.push_back(currentToken.text);
