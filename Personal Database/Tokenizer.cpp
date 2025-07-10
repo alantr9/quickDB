@@ -89,7 +89,7 @@ token tokenizer::readIdentifierOrKeyword()
 token tokenizer::readNumber()
 {
 	size_t start = position;
-	while (position < m_input.size() && std::isdigit(m_input[position])) 
+	while (position < m_input.size() && (std::isdigit(m_input[position]) || m_input[position] == '.'))
 	{
 		++position;
 	}

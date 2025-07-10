@@ -112,6 +112,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
         fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);  // ?? main fix
         std::error_code ec;
+
         fs::create_directories(dbFolder, ec);
         if (ec)
         {
@@ -120,6 +121,11 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         }
 
         fs::path csvPath = dbFolder / (cdb->tableName + ".csv");
+        if (fs::exists(csvPath))
+        {
+            std::cerr << "Table Already Exists \n";
+            return;
+        }
         std::ofstream csvFile(csvPath);
         if (!csvFile)
         {

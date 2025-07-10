@@ -168,7 +168,9 @@ std::unique_ptr<SQLCommand> parser::parseInsert()
 			currentToken = tokenHead.getNextToken();
 			if (currentToken.type != tokenType::identifier && currentToken.type != tokenType::numberLiteral) 
 			{
-				throw std::runtime_error("Expected data");
+
+                std::cout << static_cast<int>(currentToken.type) << "\n";
+				throw std::runtime_error("Expected data:");
 			}
 			if (currentToken.type == tokenType::stringLiteral)
 			{
