@@ -190,5 +190,4 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
 
 
-
 }
