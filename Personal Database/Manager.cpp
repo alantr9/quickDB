@@ -203,7 +203,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
     }
 
     /*************************/
-   /*  INSERT COMMAND */
+        /*  INSERT COMMAND */
    /*************************/
     
     if (cmd->type() == commandType::INSERT) // have to fix to match actual insert command
@@ -235,13 +235,51 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             std::cerr << "Failed to open table file for writing.\n";
             return;
         }
-        
+
+        std::ifstream metaFile(fs::path("./databases") / currentDB / (cdb->tableName + ".txt"));
+        std::vector<std::string> columnTypes;
+        std::string line;
+        while (std::getline(metaFile, line)) 
+        {
+			columnTypes.push_back(line);
+        }
+		metaFile.close();
+
+        std::cout << columnTypes.size();
+        for (size_t g{ 0 }; g < cdb->values.size(); ++g)
+        {
+            if (g >= columnTypes.size())
+            {
+                std::cerr << "Error: More values than columns in table.\n";
+                return;
+            }
+
+            if (columnTypes[g] == "INT" && !std::all_of(cdb->values[g].begin(), cdb->values[g].end(), ::isdigit))
+            {
+                std::cerr << "Error: Value '" << cdb->values[g] << "' is not a valid INT.\n";
+                return;
+            }
+            else if (columnTypes[g] == "FLOAT")
+            {
+                try
+                {
+                    std::stof(cdb->values[g]);
+                }
+                catch (const std::invalid_argument&)
+                {
+                    std::cerr << "Error: Value '" << cdb->values[g] << "' is not a valid FLOAT.\n";
+                    return;
+                }
+			}
+        }
+
         for (size_t i{ 0 }; i < cdb->values.size(); ++i)
         {
             tableFile << cdb->values[i];
             if (i < cdb->values.size() - 1)
                 tableFile << ",";
         }
+
         tableFile << "\n";
         tableFile.close();
 
