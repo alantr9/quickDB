@@ -127,7 +127,7 @@ std::unique_ptr<SQLCommand> parser::parseInsert()
 	{
 		currentToken = tokenHead.getNextToken();
 		sqlcmd->tableName = currentToken.text;
-		tokenHead.getNextToken(); // Consume '('
+		currentToken = tokenHead.getNextToken(); // Consume '('
 
 		while (tokenHead.hasMoreTokens() || tokenHead.peekToken().text != ")")
 		{
