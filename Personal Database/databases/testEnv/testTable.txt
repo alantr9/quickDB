@@ -1,2 +1,3 @@
 INT
 TEXT
+FLOAT

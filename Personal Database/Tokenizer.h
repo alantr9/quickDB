@@ -42,7 +42,6 @@ private:
     token readNumber();
     token readStringLiteral();
     token readSymbol();
-    token readFloat();
 
 public:
     explicit tokenizer(const std::string& input);
