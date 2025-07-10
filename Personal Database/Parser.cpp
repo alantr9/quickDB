@@ -30,7 +30,7 @@ std::unique_ptr<SQLCommand> parser::parseCommand()
 			tokenHead.getNextToken();
 			return parseCreateTable();
 		}
-		if (nextToken.text == "NEW COLUMN")
+		if (nextToken.text == "NEWCOLUMN")
 		{
 			tokenHead.getNextToken();
 			return parseCreateNewColumn();
@@ -115,38 +115,43 @@ std::unique_ptr<SQLCommand> parser::parseCreateTable()
 
 std::unique_ptr<SQLCommand> parser::parseCreateNewColumn()
 {
-	auto sqlcmd { std::make_unique<insertCommand>() };
+	auto sqlcmd { std::make_unique<createIndex>() };
 	token currentToken{ tokenHead.getNextToken() };
 
-	if (currentToken.text != "NEW")
-		throw std::runtime_error("Expected 'NEW' after 'CREATE'.");
-
-	currentToken = tokenHead.getNextToken();
-	if (currentToken.text != "COLUMN")
-		throw std::runtime_error("Expected 'COLUMN' after 'CREATE NEW'.");
-
-	// Get column name
-	currentToken = tokenHead.getNextToken();
-	if (currentToken.type != tokenType::identifier)
-		throw std::runtime_error("Expected column name.");
-	sqlcmd->values.push_back(currentToken.text); // values[0] = columnName
-
-	// Get column type
-	currentToken = tokenHead.getNextToken();
-	if (currentToken.type != tokenType::identifier)
-		throw std::runtime_error("Expected column type.");
-	sqlcmd->values.push_back(currentToken.text); // values[1] = columnType
-
-	// Expect 'ON'
-	currentToken = tokenHead.getNextToken();
-	if (currentToken.text != "ON")
-		throw std::runtime_error("Expected 'ON' before table name.");
-
-	// Get table name
-	currentToken = tokenHead.getNextToken();
-	if (currentToken.type != tokenType::identifier)
-		throw std::runtime_error("Expected table name.");
 	sqlcmd->tableName = currentToken.text;
+	if (!tokenHead.hasMoreTokens() || tokenHead.peekToken().text != "(")
+	{
+		throw std::runtime_error("Expected '(' after table name");
+	}	
+
+	tokenHead.getNextToken(); // Consume '('
+
+	while (tokenHead.hasMoreTokens() || tokenHead.peekToken().text != ")")
+	{
+		currentToken = tokenHead.getNextToken();
+		if (currentToken.type != tokenType::identifier)
+		{
+			throw std::runtime_error("Expected column name");
+		}
+		std::string columnName = currentToken.text;
+		currentToken = tokenHead.getNextToken();
+		if (currentToken.type != tokenType::identifier)
+		{
+			throw std::runtime_error("Expected data type for column");
+		}
+		std::string dataType = currentToken.text;
+		if (dataType != "INT" && dataType == "FLOAT" && dataType == "TEXT")
+		{
+			throw std::runtime_error("Unsupported data type: " + dataType);
+		}
+
+		sqlcmd->columnData.first = columnName;
+		sqlcmd->columnData.second = dataType;
+		if (tokenHead.peekToken().text == ",")
+		{
+			throw(std::runtime_error("Plase add only one column at a time"));
+		}
+	}
 
 	return sqlcmd;
 }

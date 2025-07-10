@@ -64,7 +64,7 @@ struct selectCommand : SQLCommand
 struct createIndex : SQLCommand 
 {
     std::string tableName;
-    std::string columnName;
+    std::pair<std::string, std::string> columnData;
 
     commandType type() const override { return commandType::CREATE_INDEX; }
 };
