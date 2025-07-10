@@ -132,7 +132,7 @@ std::unique_ptr<SQLCommand> parser::parseInsert()
 		while (tokenHead.hasMoreTokens() || tokenHead.peekToken().text != ")")
 		{ 
 			currentToken = tokenHead.getNextToken();
-			if (currentToken.type != tokenType::identifier) 
+			if (currentToken.type != tokenType::identifier && currentToken.type != tokenType::numberLiteral) 
 			{
 				throw std::runtime_error("Expected data");
 			}
