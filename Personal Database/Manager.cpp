@@ -307,5 +307,10 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         std::cout << "Row inserted into " << cdb->tableName << ".\n";
     }
 
+    /*************************/
+       /*  NEW COLUMN COMMAND */
+   /*************************/
+
+
 
 }

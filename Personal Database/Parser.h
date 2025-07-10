@@ -14,7 +14,7 @@ private:
     std::unique_ptr<SQLCommand> parseCreateTable();
     std::unique_ptr<SQLCommand> parseInsert();
     std::unique_ptr<SQLCommand> parseSelect();
-    std::unique_ptr<SQLCommand> parseCreateIndex();
+    std::unique_ptr<SQLCommand> parseCreateNewColumn();
     std::unique_ptr<SQLCommand> parseDelete();
     std::unique_ptr<SQLCommand> parseDropTable();
 
