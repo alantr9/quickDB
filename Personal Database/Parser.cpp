@@ -130,7 +130,7 @@ std::unique_ptr<SQLCommand> parser::parseInsert()
 		currentToken = tokenHead.getNextToken(); // Consume '('
 
 		while (tokenHead.hasMoreTokens() || tokenHead.peekToken().text != ")")
-		{
+		{ 
 			currentToken = tokenHead.getNextToken();
 			if (currentToken.type != tokenType::identifier) 
 			{
