@@ -128,7 +128,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         }
 
 
-        for (size_t i = 0; i < cdb->columns.size(); ++i)
+        for (size_t i{ 0 }; i < cdb->columns.size(); ++i)
         {
             csvFile << cdb->columns[i].first << " " << cdb->columns[i].second;
             if (i < cdb->columns.size() - 1)
@@ -146,7 +146,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
    
     if (cmd->type() == commandType::SELECT) 
     {
-        auto* scmd = dynamic_cast<selectCommand*>(cmd.get());
+        auto* cdb = dynamic_cast<selectCommand*>(cmd.get());
 
         if (!hasOpenDatabase())
         {
@@ -154,17 +154,17 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
 
-        if (!scmd)
+        if (!cdb)
         {
             std::cout << "Invalid SELECT command.\n";
             return;
         }
 
-        fs::path tablePath = fs::path("./databases") / currentDB / (scmd->tableName + ".csv");
+        fs::path tablePath = fs::path("./databases") / currentDB / (cdb->tableName + ".csv");
 
         if (!fs::exists(tablePath))
         {
-            std::cerr << "Table does not exist: " << scmd->tableName << "\n";
+            std::cerr << "Table does not exist: " << cdb->tableName << "\n";
             return;
         }
 
@@ -187,7 +187,51 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
     /*************************/
    /*  INSERT COMMAND */
    /*************************/
+    
+    if (cmd->type() == commandType::INSERT)
+    {
+        auto* cdb = dynamic_cast<insertCommand*>(cmd.get());
 
+        if (!hasOpenDatabase())
+        {
+            std::cout << "No database opened. Please create or open a database first.\n";
+            return;
+        }
+
+        if (!cdb)
+        {
+            std::cerr << "Invalid INSERT command.\n";
+            return;
+        }
+
+        
+        fs::path tablePath = fs::path("./databases") / currentDB / (cdb->tableName + ".csv");
+
+        if (!fs::exists(tablePath))
+        {
+            std::cerr << "Table not found: " << cdb->tableName << "\n";
+            return;
+        }
+
+        std::ofstream tableFile(tablePath, std::ios::app);
+        if (!tableFile)
+        {
+            std::cerr << "Failed to open table file for writing.\n";
+            return;
+        }
+
+        
+        for (size_t i{ 0 }; i < cdb->values.size(); ++i)
+        {
+            tableFile << cdb->values[i];
+            if (i < cdb->values.size() - 1)
+                tableFile << ",";
+        }
+        tableFile << "\n";
+        tableFile.close();
+
+        std::cout << "Row inserted into " << cdb->tableName << ".\n";
+    }
 
 
 
