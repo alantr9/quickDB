@@ -188,7 +188,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
    /*  INSERT COMMAND */
    /*************************/
     
-    if (cmd->type() == commandType::INSERT)
+    if (cmd->type() == commandType::INSERT) // have to fix to match actual insert command
     {
         auto* cdb = dynamic_cast<insertCommand*>(cmd.get());
 
