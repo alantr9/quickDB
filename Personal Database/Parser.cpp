@@ -151,6 +151,7 @@ std::unique_ptr<SQLCommand> parser::parseInsert()
 			}
 		}
 	}
+	return sqlcmd;
 }
 
 std::unique_ptr<SQLCommand> parser::parseSelect() 

@@ -144,6 +144,8 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
    /*  SELECT COMMAND */
    /*************************/
    
+    // NOT FINISHED - IMPLEMENT WITH BTREES
+
     if (cmd->type() == commandType::SELECT) 
     {
         auto* cdb = dynamic_cast<selectCommand*>(cmd.get());
@@ -161,7 +163,6 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         }
 
         fs::path tablePath = fs::path("./databases") / currentDB / (cdb->tableName + ".csv");
-
         if (!fs::exists(tablePath))
         {
             std::cerr << "Table does not exist: " << cdb->tableName << "\n";
@@ -197,7 +198,6 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             std::cout << "No database opened. Please create or open a database first.\n";
             return;
         }
-
         if (!cdb)
         {
             std::cerr << "Invalid INSERT command.\n";
@@ -206,7 +206,6 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
         
         fs::path tablePath = fs::path("./databases") / currentDB / (cdb->tableName + ".csv");
-
         if (!fs::exists(tablePath))
         {
             std::cerr << "Table not found: " << cdb->tableName << "\n";
@@ -219,7 +218,6 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             std::cerr << "Failed to open table file for writing.\n";
             return;
         }
-
         
         for (size_t i{ 0 }; i < cdb->values.size(); ++i)
         {
