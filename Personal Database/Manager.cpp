@@ -318,5 +318,67 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
    /*************************/
 
 
+    if (cmd->type() == commandType::CREATE_INDEX)  // use your actual enum value here
+    {
+        auto* cdb = dynamic_cast<createIndex*>(cmd.get());
+        if (!cdb) {
+            std::cerr << "Invalid CREATE NEW COLUMN command.\n";
+            return;
+        }
+
+        if (!hasOpenDatabase()) {
+            std::cerr << "No database opened. Please create or open a database first.\n";
+            return;
+        }
+
+        std::string tableName = cdb->tableName;
+        std::string newColumnType = cdb->columnData.second;
+
+        fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);
+        fs::path metaPath = dbFolder / (tableName + ".txt");
+        fs::path csvPath = dbFolder / (tableName + ".csv");
+
+        if (!fs::exists(metaPath) || !fs::exists(csvPath)) {
+            std::cerr << "Table does not exist: " << tableName << "\n";
+            return;
+        }
+
+        
+        std::ofstream metaOut(metaPath, std::ios::app);
+        if (!metaOut) {
+            std::cerr << "Failed to open metadata file for appending: " << metaPath << "\n";
+            return;
+        }
+        metaOut << newColumnType << "\n";
+        metaOut.close();
+
+       
+        std::ifstream csvIn(csvPath);
+        if (!csvIn) {
+            std::cerr << "Failed to open CSV file: " << csvPath << "\n";
+            return;
+        }
+
+        std::vector<std::string> rows;
+        std::string line;
+        while (std::getline(csvIn, line)) {
+            rows.push_back(line + ",");
+        }
+        csvIn.close();
+
+        std::ofstream csvOut(csvPath);
+        if (!csvOut) {
+            std::cerr << "Failed to open CSV file for writing: " << csvPath << "\n";
+            return;
+        }
+        for (const auto& row : rows) {
+            csvOut << row << "\n";
+        }
+        csvOut.close();
+
+        std::cout << "New column of type '" << newColumnType
+            << "' added to table: " << tableName << "\n";
+    }
+
 
 }
