@@ -267,7 +267,6 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         }
 		metaFile.close();
 
-        std::cout << columnTypes.size();
         for (size_t g{ 0 }; g < cdb->values.size(); ++g)
         {
             if (g >= columnTypes.size())
