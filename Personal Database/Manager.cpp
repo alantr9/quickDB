@@ -175,27 +175,6 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         std::cout << "Table created with binary file: " << binPath << "\n";
     }
 
-    /*************************/
-    /*  CREATE INDEX COMMAND */
-    /*************************/
-
-    if(cmd->type() == commandType::CREATE_INDEX)
-    {
-        auto* cdb = dynamic_cast<createIndex*>(cmd.get());
-        if (!hasOpenDatabase())
-        {
-            std::cout << "No database opened. Please create or open a database first.\n";
-            return;
-        }
-        if (!cdb)
-        {
-            std::cerr << "Invalid CREATE INDEX command.\n";
-            return;
-        }
-
-
-	}
-
    /*************************/
    /*  SELECT COMMAND */
    /*************************/
