@@ -42,7 +42,6 @@ void manager::dbLogger(std::string name)
     if (doesDatabaseExists(name)) 
     {
         std::cout << "Database opened. \n";
-        exportAllTablesToCSV(getCurrentDatabase());
         return;
 	}
     else if (!doesDatabaseExists(name))
@@ -278,85 +277,13 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
 
-        for (size_t i = 0; i < colCount; ++i)
+        for (size_t g{ 0 }; g < colCount; ++g)
         {
-            if (colTypes[i] == 0 && !std::all_of(cdb->values[i].begin(), cdb->values[i].end(), ::isdigit)) // INT
-            {
-                int val{ std::stoi(cdb->values[i]) };
-                binFileWriter.write(reinterpret_cast<const char*>(&val), sizeof(val));
-            }
-
-            else if (colTypes[i] == 1)
-            {
-                try
-                {
-                    std::stof(cdb->values[i]);
-                }
-                catch (const std::invalid_argument&)
-                {
-                    std::cerr << "Error: Value '" << cdb->values[i] << "' is not a valid FLOAT.\n";
-                }
-                float val{ std::stof(cdb->values[i]) };
-                binFileWriter.write(reinterpret_cast<const char*>(&val), sizeof(val));
-            }
-
-        }
-    }
-
-    /*
-    if (cmd->type() == commandType::INSERT) // have to fix to match actual insert command
-    {
-        auto* cdb = dynamic_cast<insertCommand*>(cmd.get());
-
-        if (!hasOpenDatabase())
-        {
-            std::cout << "No database opened. Please create or open a database first.\n";
-            return;
-        }
-        if (!cdb)
-        {
-            std::cerr << "Invalid INSERT command.\n";
-            return;
-        }
-
-        
-        fs::path tablePath = fs::path("./databases") / currentDB / (cdb->tableName + ".csv");
-        if (!fs::exists(tablePath))
-        {
-            std::cerr << "Table not found: " << cdb->tableName << "\n";
-            return;
-        }
-
-        std::ofstream tableFile(tablePath, std::ios::app);
-        if (!tableFile)
-        {
-            std::cerr << "Failed to open table file for writing.\n";
-            return;
-        }
-
-        std::ifstream metaFile(fs::path("./databases") / currentDB / (cdb->tableName + ".txt"));
-        std::vector<std::string> columnTypes;
-        std::string line;
-        while (std::getline(metaFile, line)) 
-        {
-			columnTypes.push_back(line);
-        }
-		metaFile.close();
-
-        for (size_t g{ 0 }; g < cdb->values.size(); ++g)
-        {
-            if (g >= columnTypes.size())
-            {
-                std::cerr << "Error: More values than columns in table.\n";
-                return;
-            }
-
-            if (columnTypes[g] == "INT" && !std::all_of(cdb->values[g].begin(), cdb->values[g].end(), ::isdigit))
+            if (colTypes[g] == 0 && !std::all_of(cdb->values[g].begin(), cdb->values[g].end(), ::isdigit)) // INT
             {
                 std::cerr << "Error: Value '" << cdb->values[g] << "' is not a valid INT.\n";
-                return;
             }
-            else if (columnTypes[g] == "FLOAT")
+            else if (colTypes[g] == 1)
             {
                 try
                 {
@@ -367,22 +294,31 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
                     std::cerr << "Error: Value '" << cdb->values[g] << "' is not a valid FLOAT.\n";
                     return;
                 }
-			}
+            }
         }
 
-        for (size_t i{ 0 }; i < cdb->values.size(); ++i)
+        for (size_t i = 0; i < colCount; ++i)
         {
-            tableFile << cdb->values[i];
-            if (i < cdb->values.size() - 1)
-                tableFile << ",";
+            if (colTypes[i] == 0) // INT
+            {
+                int val{ std::stoi(cdb->values[i]) };
+                binFileWriter.write(reinterpret_cast<const char*>(&val), sizeof(val));
+            }
+
+            else if (colTypes[i] == 1) // FLOAT
+            {
+                float val{ std::stof(cdb->values[i]) };
+                binFileWriter.write(reinterpret_cast<const char*>(&val), sizeof(val));
+            }
+
+            else if (colTypes[i] == 2) // TEXT
+            {
+                size_t len = cdb->values[i].size();
+                binFileWriter.write(reinterpret_cast<const char*>(&len), sizeof(len));
+                binFileWriter.write(cdb->values[i].data(), len); // Needed since strings vary in length
+            }
         }
-
-        tableFile << "\n";
-        tableFile.close();
-
-        std::cout << "Row inserted into " << cdb->tableName << ".\n";
     }
-    */
 
     /*************************/
        /*  NEW COLUMN COMMAND */
