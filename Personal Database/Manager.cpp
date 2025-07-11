@@ -228,6 +228,25 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
     {
         auto* cdb{ dynamic_cast<insertCommand*>(cmd.get()) };
 
+        if (!hasOpenDatabase())
+        {
+            std::cout << "No database opened. Please create or open a database first.\n";
+            return;
+        }
+        if (!cdb)
+        {
+            std::cerr << "Invalid INSERT command.\n";
+            return;
+        }
+
+        fs::path binPath = fs::path("./databases") / currentDB / (cdb->tableName + ".bin");
+        if (!fs::exists(binPath))
+        {
+            std::cerr << "Table not found: " << cdb->tableName << "\n";
+            return;
+        }
+
+
     }
 
     /*
