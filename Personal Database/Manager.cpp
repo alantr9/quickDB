@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "Manager.h"
+#include "testCode.cpp"
 
 
 namespace fs = std::filesystem;
@@ -321,7 +322,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
     }
 
     /*************************/
-       /*  NEW COLUMN COMMAND */
+    /*  NEW COLUMN COMMAND */
    /*************************/
 
     
