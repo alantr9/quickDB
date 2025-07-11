@@ -9,6 +9,12 @@
 #include "Parser.h"
 #include "Manager.h"
 
+#include <filesystem>
+#include <fstream>
+#include <vector>
+#include <string>
+
+
 
 int main(int argc, char* argv[]) 
 {
@@ -25,6 +31,7 @@ int main(int argc, char* argv[])
         if (!std::getline(std::cin, inputLine)) break;  // EOF or error
         if (inputLine.empty()) continue;
         if (inputLine == "exit;" || inputLine == "quit;") break;
+
 
         try 
         {

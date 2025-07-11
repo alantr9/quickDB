@@ -2,6 +2,7 @@
 #include <string>
 #include "Manager.h"
 
+
 namespace fs = std::filesystem;
 
 manager::manager() :
@@ -41,6 +42,7 @@ void manager::dbLogger(std::string name)
     if (doesDatabaseExists(name)) 
     {
         std::cout << "Database opened. \n";
+        exportAllTablesToCSV(getCurrentDatabase());
         return;
 	}
     else if (!doesDatabaseExists(name))
@@ -98,71 +100,80 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
     /*  CREATE TABLE COMMAND */
 	/*************************/
     
-
     if (cmd->type() == commandType::CREATE_TABLE)
     {
         auto* cdb = dynamic_cast<createTable*>(cmd.get());
-        
-        if(hasOpenDatabase() == false) 
+
+        if (hasOpenDatabase() == false)
         {
             std::cout << "No database opened. Please create or open a database first.\n";
-			std::cout << currentDB << "\n";
+            std::cout << currentDB << "\n";
             return;
         }
 
-        fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);  // ?? main fix
+        // ??? Don't remove code will break
+        fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);
         std::error_code ec;
-
         fs::create_directories(dbFolder, ec);
         if (ec)
         {
             std::cerr << "Failed to create database directory: " << ec.message() << "\n";
             return;
         }
-
-        fs::path csvPath = dbFolder / (cdb->tableName + ".csv");
-        if (fs::exists(csvPath))
-        {
-            std::cerr << "Table Already Exists \n";
-            return;
-        }
-        std::ofstream csvFile(csvPath);
-        if (!csvFile)
-        {
-            std::cerr << "Failed to create CSV file: " << csvPath << "\n";
-            return;
-        }
-
-
-        for (size_t i{ 0 }; i < cdb->columns.size(); ++i)
-        {
-            csvFile << cdb->columns[i].first;
-            if (i < cdb->columns.size() - 1)
-                csvFile << ",";
-        }
-        csvFile << "\n";
-        csvFile.close();
-
-        std::cout << "Table created with CSV file: " << csvPath << "\n";
-
-        fs::path metaPath = dbFolder / (cdb->tableName + ".txt"); // to differentiate between .csv files
-        std::ofstream metaFile(metaPath);
-        if (!metaFile)
-        {
-            std::cerr << "Failed to create metadata file: " << metaPath << "\n";
-            return;
-        }
-
         
+
+        fs::path binPath = dbFolder / (cdb->tableName + ".bin");
+        if (fs::exists(binPath))
+        {
+            std::cerr << "Table Already Exists\n";
+            return;
+        }
+
+        std::ofstream binFile(binPath, std::ios::binary);
+        if (!binFile)
+        {
+            std::cerr << "Failed to create binary table file: " << binPath << "\n";
+            return;
+        }
+
+        // Writing Column Info to BIN file
+
+        /*
+        FORMAT:
+
+        columnCount - count, size
+            
+            column1 - length, size
+            column1 - columnName tokenized to char
+            column1 - datatype represented as typeInt
+
+        */
+        size_t colCount = cdb->columns.size();
+        binFile.write(reinterpret_cast<const char*>(&colCount), sizeof(colCount));
+
         for (const auto& col : cdb->columns)
         {
-            metaFile << col.second << "\n";
+            size_t nameLen = col.first.size();
+            binFile.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
+            binFile.write(col.first.data(), nameLen);
+
+            int typeInt;
+            if (col.second == "INT") typeInt = 0;
+            else if (col.second == "FLOAT") typeInt = 1;
+            else if (col.second == "TEXT") typeInt = 2;
+            else
+            {
+                std::cerr << "Unsupported column type: " << col.second << "\n";
+                binFile.close();
+                fs::remove(binPath); // File will be deleted if datatypes don't match
+                return;
+            }
+            binFile.write(reinterpret_cast<const char*>(&typeInt), sizeof(typeInt));
         }
 
-        metaFile.close();
-        std::cout << "Metadata file created: " << metaPath << "\n";
+        binFile.close();
+        std::cout << "Table created with binary file: " << binPath << "\n";
     }
-
 
     /*************************/
     /*  CREATE INDEX COMMAND */
@@ -233,6 +244,8 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
     /*************************/
        /*  INSERT COMMAND */
    /*************************/
+
+
     
     if (cmd->type() == commandType::INSERT) // have to fix to match actual insert command
     {
@@ -312,12 +325,13 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
         std::cout << "Row inserted into " << cdb->tableName << ".\n";
     }
+    
 
     /*************************/
        /*  NEW COLUMN COMMAND */
    /*************************/
 
-
+    
     if (cmd->type() == commandType::CREATE_INDEX)  // use your actual enum value here
     {
         auto* cdb = dynamic_cast<createIndex*>(cmd.get());
@@ -379,6 +393,6 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         std::cout << "New column of type '" << newColumnType
             << "' added to table: " << tableName << "\n";
     }
-
+    
 
 }
