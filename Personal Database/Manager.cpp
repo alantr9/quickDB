@@ -77,7 +77,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
     if (cmd->type() == commandType::CREATE_DATABASE) 
     { 
-        auto* cdb = dynamic_cast<createDatabase*>(cmd.get());
+        auto* cdb{ dynamic_cast<createDatabase*>(cmd.get()) };
 		// Future: Check if database already opened or needs to be switched
         if (cdb && currentDB == cdb->dbName) 
         {
@@ -102,7 +102,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
     
     if (cmd->type() == commandType::CREATE_TABLE)
     {
-        auto* cdb = dynamic_cast<createTable*>(cmd.get());
+        auto* cdb{ dynamic_cast<createTable*>(cmd.get()) };
 
         if (hasOpenDatabase() == false)
         {
@@ -183,7 +183,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
     if (cmd->type() == commandType::SELECT) 
     {
-        auto* cdb = dynamic_cast<selectCommand*>(cmd.get());
+        auto* cdb{ dynamic_cast<selectCommand*>(cmd.get()) };
 
         if (!hasOpenDatabase())
         {
@@ -224,8 +224,13 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
        /*  INSERT COMMAND */
    /*************************/
 
+    if (cmd->type() == commandType::INSERT)
+    {
+        auto* cdb{ dynamic_cast<insertCommand*>(cmd.get()) };
 
-    
+    }
+
+    /*
     if (cmd->type() == commandType::INSERT) // have to fix to match actual insert command
     {
         auto* cdb = dynamic_cast<insertCommand*>(cmd.get());
@@ -304,7 +309,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
 
         std::cout << "Row inserted into " << cdb->tableName << ".\n";
     }
-    
+    */
 
     /*************************/
        /*  NEW COLUMN COMMAND */
@@ -313,7 +318,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
     
     if (cmd->type() == commandType::CREATE_INDEX)  // use your actual enum value here
     {
-        auto* cdb = dynamic_cast<createIndex*>(cmd.get());
+        auto* cdb{ dynamic_cast<createIndex*>(cmd.get()) };
         if (!cdb) {
             std::cerr << "Invalid CREATE NEW COLUMN command.\n";
             return;
