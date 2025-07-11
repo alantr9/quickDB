@@ -246,6 +246,31 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
 
+        std::ifstream binFileViewer(binPath, std::ios::binary);
+        if (!binFileViewer)
+        {
+            std::cerr << "Failed to open binary table file: " << binPath << "\n";
+            return;
+        }
+
+        size_t colCount;
+        binFileViewer.read(reinterpret_cast<char*>(&colCount), sizeof(colCount));
+        std::vector<int> colTypes;
+
+        for (size_t i = 0; i < colCount; ++i)
+        {
+            size_t nameLen;
+            //Reading binary files dont use const char*
+
+            binFileViewer.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
+            binFileViewer.seekg(nameLen, std::ios::cur); // Moves nameLen bytes from current position
+
+            int typeInt;
+            binFileViewer.read(reinterpret_cast<char*>(&typeInt), sizeof(typeInt));
+            colTypes.push_back(typeInt);
+        }
+        binFileViewer.close();
+
 
     }
 
