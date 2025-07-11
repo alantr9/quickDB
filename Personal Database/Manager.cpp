@@ -271,7 +271,36 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
         }
         binFileViewer.close();
 
+        std::ofstream binFileWriter(binPath, std::ios::binary | std::ios::app);
+        if (!binFileWriter)
+        {
+            std::cerr << "Failed to open binary table file for writing: " << binPath << "\n";
+            return;
+        }
 
+        for (size_t i = 0; i < colCount; ++i)
+        {
+            if (colTypes[i] == 0 && !std::all_of(cdb->values[i].begin(), cdb->values[i].end(), ::isdigit)) // INT
+            {
+                int val{ std::stoi(cdb->values[i]) };
+                binFileWriter.write(reinterpret_cast<const char*>(&val), sizeof(val));
+            }
+
+            else if (colTypes[i] == 1)
+            {
+                try
+                {
+                    std::stof(cdb->values[i]);
+                }
+                catch (const std::invalid_argument&)
+                {
+                    std::cerr << "Error: Value '" << cdb->values[i] << "' is not a valid FLOAT.\n";
+                }
+                float val{ std::stof(cdb->values[i]) };
+                binFileWriter.write(reinterpret_cast<const char*>(&val), sizeof(val));
+            }
+
+        }
     }
 
     /*
