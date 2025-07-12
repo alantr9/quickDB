@@ -3,7 +3,6 @@
 #define MANAGER_H
 
 #include <iostream>
-#include <filesystem>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -21,9 +20,8 @@ public:
     bool hasOpenDatabase() const;
     std::string getCurrentDatabase() const;
     void execute(std::unique_ptr<SQLCommand> cmd);
-    void dbLogger(std::string name);
+    void dbLogger(std::string name) const;
     bool doesDatabaseExists(const std::string& dbName) const;
-    void exportAllTablesToCSV(const std::string& dbName);
 };
 
 

@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include "Manager.h"
-#include "testCode.cpp"
 
 
 namespace fs = std::filesystem;
@@ -37,20 +36,20 @@ bool manager::doesDatabaseExists(const std::string& dbName) const
 }
 
 
-void manager::dbLogger(std::string name)
+void manager::dbLogger(std::string dbName) const
 {
 
-    if (doesDatabaseExists(name)) 
+    if (doesDatabaseExists(dbName)) 
     {
         std::cout << "Database opened. \n";
         return;
 	}
-    else if (!doesDatabaseExists(name))
+    else if (!doesDatabaseExists(dbName))
     {
         std::ofstream writeFile("databaseNames.csv", std::ios::app); // Append mode
-		writeFile << name << ",\n";
+		writeFile << dbName << ",\n";
         writeFile.close();
-        std::cout << "Database created: " << name << "\n";
+        std::cout << "Database created: " << dbName << "\n";
 
         try
         {
@@ -253,19 +252,19 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             return;
         }
 
-        size_t colCount;
+        size_t colCount{ 0 };
         binFileViewer.read(reinterpret_cast<char*>(&colCount), sizeof(colCount));
         std::vector<int> colTypes;
 
         for (size_t i = 0; i < colCount; ++i)
         {
-            size_t nameLen;
+            size_t nameLen{ 0 };
             //Reading binary files dont use const char*
 
             binFileViewer.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
             binFileViewer.seekg(nameLen, std::ios::cur); // Moves nameLen bytes from current position
 
-            int typeInt;
+            int typeInt{ 0 };
             binFileViewer.read(reinterpret_cast<char*>(&typeInt), sizeof(typeInt));
             colTypes.push_back(typeInt);
         }

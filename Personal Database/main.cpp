@@ -9,12 +9,6 @@
 #include "Parser.h"
 #include "Manager.h"
 
-#include <filesystem>
-#include <fstream>
-#include <vector>
-#include <string>
-
-
 
 int main(int argc, char* argv[]) 
 {

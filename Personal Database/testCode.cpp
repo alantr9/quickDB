@@ -3,6 +3,7 @@
 #include "Manager.h"
 #include "Parser.h"
 #include <iostream>
+#include <filesystem>
 
 void exportAllTablesToCSV(const std::string& dbName)
 {
