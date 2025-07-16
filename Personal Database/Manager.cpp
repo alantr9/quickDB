@@ -306,7 +306,37 @@ void manager::insertNewColumn(std::unique_ptr<SQLCommand>& cmd) const
         colTypes.push_back(typeInt);
     }
 
-    
+    // Copying row values
+    std::vector<std::vector<std::string>> rowsVals;
+    while (binFileIn.peek() != EOF)
+    {
+        std::vector<std::string> row;
+        for (size_t i = 0; i < colCount; ++i)
+        {
+            if (colTypes[i] == 0) // INT
+            {
+                int val;
+                binFileIn.read(reinterpret_cast<char*>(&val), sizeof(val));
+                row.push_back(std::to_string(val));
+            }
+            else if (colTypes[i] == 1) // FLOAT
+            {
+                float val;
+                binFileIn.read(reinterpret_cast<char*>(&val), sizeof(val));
+                row.push_back(std::to_string(val));
+            }
+            else if (colTypes[i] == 2) // STRING
+            {
+                std::string val;
+                binFileIn.read(reinterpret_cast<char*>(&val), sizeof(val));
+                row.push_back(val);
+            }
+        }
+        if (binFileIn.eof()) break;
+        rowsVals.push_back(row);
+    }
+
+
 }
 
 void manager::execute(std::unique_ptr<SQLCommand> cmd) 
