@@ -258,6 +258,56 @@ void manager::insertDataToFile(std::unique_ptr<SQLCommand>& cmd) const
 
     std::cout << "Data inserted into table: " << cdb->tableName << "\n";
 }
+void manager::insertNewColumn(std::unique_ptr<SQLCommand>& cmd) const 
+{
+    auto* cdb = dynamic_cast<createIndex*>(cmd.get());
+    if (!cdb)
+    {
+        std::cerr << "Invalid CREATE NEW COLUMN command.\n";
+        return;
+    }
+    if (!hasOpenDatabase())
+    {
+        std::cerr << "No database opened. Please create or open a database first.\n";
+        return;
+    }
+
+    fs::path binPath = fs::path("./databases") / currentDB / (cdb->tableName + ".bin");
+    if (!fs::exists(binPath))
+    {
+        std::cerr << "Table does not exist: " << cdb->tableName << "\n";
+        return;
+    }
+
+    // Read schema and all rows
+    std::ifstream binFileIn(binPath, std::ios::binary);
+    if (!binFileIn)
+    {
+        std::cerr << "Failed to open binary table file: " << binPath << "\n";
+        return;
+    }
+
+
+    size_t colCount;
+    binFileIn.read(reinterpret_cast<char*>(&colCount), sizeof(colCount));
+    std::vector<std::string> colNames;
+    std::vector<int> colTypes;
+    
+    // Read Col Names+Type
+    for (int i{ 0 }; i < colCount; ++i)
+    {
+        size_t colName;
+        binFileIn.read(reinterpret_cast<char*>(&colName), sizeof(colName));
+        std::string name(colName, '\0');
+        binFileIn.read(&name[0], colName);
+        int typeInt;
+        binFileIn.read(reinterpret_cast<char*>(&typeInt), sizeof(typeInt));
+        colNames.push_back(name);
+        colTypes.push_back(typeInt);
+    }
+
+    
+}
 
 void manager::execute(std::unique_ptr<SQLCommand> cmd) 
 {
