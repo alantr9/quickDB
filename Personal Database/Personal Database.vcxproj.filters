@@ -47,6 +47,9 @@
     <ClInclude Include="Manager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="testCode.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="databaseNames.csv" />

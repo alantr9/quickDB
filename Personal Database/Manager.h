@@ -11,13 +11,14 @@
 #include "abstractSyntaxTree.h"
 
 
+
 class manager {
 private:
     std::string currentDB;
     void createDatabaseFile(std::unique_ptr<SQLCommand>& cmd);
     void createTableFile(std::unique_ptr<SQLCommand>& cmd) const;
     void insertDataToFile(std::unique_ptr<SQLCommand>& cmd) const;
-    void insertNewColumn(std::unique_ptr<SQLCommand>& cmd) const
+    void insertNewColumn(std::unique_ptr<SQLCommand>& cmd) const;
 
 public:
     explicit manager();

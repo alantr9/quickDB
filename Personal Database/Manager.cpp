@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "Manager.h"
+#include "testCode.h"
 
 
 namespace fs = std::filesystem;
@@ -36,11 +37,13 @@ bool manager::doesDatabaseExists(const std::string& dbName) const
 }
 
 
+
 void manager::dbLogger(std::string dbName) const
 {
 
     if (doesDatabaseExists(dbName)) 
     {
+        //exportAllTablesToCSV(dbName);
         std::cout << "Database opened. \n";
         return;
 	}
@@ -97,7 +100,7 @@ void manager::createTableFile(std::unique_ptr<SQLCommand>& cmd) const
         return;
     }
 
-    // ??? Don't remove code will break
+
     fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);
     std::error_code ec;
     fs::create_directories(dbFolder, ec);
@@ -108,7 +111,7 @@ void manager::createTableFile(std::unique_ptr<SQLCommand>& cmd) const
     }
 
 
-    fs::path binPath = dbFolder / (cdb->tableName + ".bin");
+    fs::path binPath = dbFolder / (cdb->tableName + "Schema" + ".bin");
     if (fs::exists(binPath))
     {
         std::cerr << "Table Already Exists\n";
@@ -175,7 +178,7 @@ void manager::insertDataToFile(std::unique_ptr<SQLCommand>& cmd) const
         return;
     }
 
-    fs::path binPath = fs::path("./databases") / currentDB / (cdb->tableName + ".bin");
+    fs::path binPath = fs::path("./databases") / currentDB / (cdb->tableName + "Schema" + ".bin");
     if (!fs::exists(binPath))
     {
         std::cerr << "Table not found: " << cdb->tableName << "\n";
@@ -207,6 +210,7 @@ void manager::insertDataToFile(std::unique_ptr<SQLCommand>& cmd) const
     }
     binFileViewer.close();
 
+    binPath = fs::path("./databases") / currentDB / (cdb->tableName + ".bin"); // Updates binpath to not open the schema
     std::ofstream binFileWriter(binPath, std::ios::binary | std::ios::app);
     if (!binFileWriter)
     {
@@ -279,88 +283,7 @@ void manager::insertNewColumn(std::unique_ptr<SQLCommand>& cmd) const
         return;
     }
 
-    // Read schema and all rows
-    std::ifstream binFileIn(binPath, std::ios::binary);
-    if (!binFileIn)
-    {
-        std::cerr << "Failed to open binary table file: " << binPath << "\n";
-        return;
-    }
 
-
-    size_t colCount;
-    binFileIn.read(reinterpret_cast<char*>(&colCount), sizeof(colCount));
-    std::vector<std::string> colNames;
-    std::vector<int> colTypes;
-    
-    // Read Col Names+Type
-    for (int i{ 0 }; i < colCount; ++i)
-    {
-        size_t colName;
-        binFileIn.read(reinterpret_cast<char*>(&colName), sizeof(colName));
-        std::string name(colName, '\0');
-        binFileIn.read(&name[0], colName);
-        int typeInt;
-        binFileIn.read(reinterpret_cast<char*>(&typeInt), sizeof(typeInt));
-        colNames.push_back(name);
-        colTypes.push_back(typeInt);
-    }
-
-    // Copying row values
-    std::vector<std::vector<std::string>> rowsVals;
-    while (binFileIn.peek() != EOF)
-    {
-        std::vector<std::string> row;
-        for (size_t i = 0; i < colCount; ++i)
-        {
-            if (colTypes[i] == 0) // INT
-            {
-                int val;
-                binFileIn.read(reinterpret_cast<char*>(&val), sizeof(val));
-                row.push_back(std::to_string(val));
-            }
-            else if (colTypes[i] == 1) // FLOAT
-            {
-                float val;
-                binFileIn.read(reinterpret_cast<char*>(&val), sizeof(val));
-                row.push_back(std::to_string(val));
-            }
-            else if (colTypes[i] == 2) // STRING
-            {
-                std::string val;
-                binFileIn.read(reinterpret_cast<char*>(&val), sizeof(val));
-                row.push_back(val);
-            }
-        }
-        if (binFileIn.eof()) break;
-        rowsVals.push_back(row);
-    }
-
-    // Adding new Col
-    std::string newColName = cdb->columnData.first;
-    std::string newColTypeStr = cdb->columnData.second;
-    int newColType{ 0 };
-    if (newColTypeStr == "INT") newColType = 0;
-    else if (newColTypeStr == "FLOAT") newColType = 1;
-    else if (newColTypeStr == "TEXT") newColType = 2;
-    else
-    {
-        std::cerr << "Unsupported column type: " << newColTypeStr << "\n";
-        return;
-    }
-    colNames.push_back(newColName);
-    colTypes.push_back(newColType);
-    ++colCount;
-
-    // New column have default values
-    for (auto& row : rowsVals)
-    {
-        if (newColType == 0) row.push_back("0");
-        else if (newColType == 1) row.push_back("0.0");
-        else if (newColType == 2) row.push_back("");
-    }
-
-    
 }
 
 void manager::execute(std::unique_ptr<SQLCommand> cmd) 
