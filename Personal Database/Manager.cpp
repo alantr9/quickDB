@@ -147,9 +147,9 @@ void manager::createTableFile(std::unique_ptr<SQLCommand>& cmd) const
         binFile.write(col.first.data(), nameLen);
 
         int typeInt;
-        if (col.second == "INT") typeInt = 0;
+        if (col.second == "INT")        typeInt = 0;
         else if (col.second == "FLOAT") typeInt = 1;
-        else if (col.second == "TEXT") typeInt = 2;
+        else if (col.second == "TEXT")  typeInt = 2;
         else
         {
             std::cerr << "Unsupported column type: " << col.second << "\n";
@@ -276,12 +276,32 @@ void manager::insertNewColumn(std::unique_ptr<SQLCommand>& cmd) const
         return;
     }
 
-    fs::path binPath = fs::path("./databases") / currentDB / (cdb->tableName + ".bin");
-    if (!fs::exists(binPath))
+    fs::path binFile = fs::path("./databases") / currentDB / (cdb->tableName + "Schema" + ".bin");
+    if (!fs::exists(binFile))
     {
         std::cerr << "Table does not exist: " << cdb->tableName << "\n";
         return;
     }
+
+    std::ofstream fileSchema(binFile, std::ios::binary, std::ios::app);
+
+    int typeInt;
+    if (cdb->columnData.second == "INT")           typeInt = 0;
+    else if (cdb->columnData.second == "FLOAT")    typeInt = 1;
+    else if (cdb->columnData.second == "STRING")  typeInt = 2;
+    else
+    {
+        std::cerr << "Unsupported column type: " << cdb->columnData.second << "\n";
+        fileSchema.close();
+
+        return;
+    }
+
+    size_t nameLen{ cdb->columnData.first.size() };
+    fileSchema.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
+    fileSchema.write(cdb->columnData.first.data(), nameLen);
+    fileSchema.write(reinterpret_cast<const char*>(&typeInt), sizeof(typeInt));
+    fileSchema.close();
 
 
 }
