@@ -336,7 +336,31 @@ void manager::insertNewColumn(std::unique_ptr<SQLCommand>& cmd) const
         rowsVals.push_back(row);
     }
 
+    // Adding new Col
+    std::string newColName = cdb->columnData.first;
+    std::string newColTypeStr = cdb->columnData.second;
+    int newColType{ 0 };
+    if (newColTypeStr == "INT") newColType = 0;
+    else if (newColTypeStr == "FLOAT") newColType = 1;
+    else if (newColTypeStr == "TEXT") newColType = 2;
+    else
+    {
+        std::cerr << "Unsupported column type: " << newColTypeStr << "\n";
+        return;
+    }
+    colNames.push_back(newColName);
+    colTypes.push_back(newColType);
+    ++colCount;
 
+    // New column have default values
+    for (auto& row : rowsVals)
+    {
+        if (newColType == 0) row.push_back("0");
+        else if (newColType == 1) row.push_back("0.0");
+        else if (newColType == 2) row.push_back("");
+    }
+
+    
 }
 
 void manager::execute(std::unique_ptr<SQLCommand> cmd) 
