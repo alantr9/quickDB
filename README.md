@@ -18,23 +18,9 @@
 - ⚙️ **Modular Design**: Easily extendable command execution and parsing logic.
 - 📚 **Column Type Awareness**: Each column's type is saved and utilized during operations.
 
+
 ---
 
-## 📁 Project Structure
-QuickDB/
-├── databases/ # Created on runtime
-│ └── <dbname>/ # Each database is a folder
-│ ├── table.csv # Table data
-│ └── table.txt # Metadata for column types
-├── src/
-│ ├── main.cpp # Entry point & REPL loop
-│ ├── parser.cpp # SQL string to Command object
-│ ├── manager.cpp # Command execution logic
-│ ├── command.hpp/.cpp # Abstract command and its children
-│ └── token.hpp/.cpp # Tokenizer for parsing input
-├── Makefile
-└── README.md
----
 
 ## 🧪 Sample Usage
 
