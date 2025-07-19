@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="testCode.h" />
     <ClInclude Include="Tokenizer.h" />
   </ItemGroup>
   <ItemGroup>
