@@ -207,5 +207,12 @@ std::unique_ptr<SQLCommand> parser::parseDelete()
 
 std::unique_ptr<SQLCommand> parser::parseDropTable() 
 {
-	throw std::runtime_error("parseDropTable not implemented");
+	auto sqlcmd = std::make_unique<dropTable>();
+
+	if (!tokenHead.hasMoreTokens()) {
+		throw std::runtime_error("Expected table name after DROP TABLE");
+	}
+
+	sqlcmd->tableName = tokenHead.getNextToken().text;
+	return sqlcmd;
 }
