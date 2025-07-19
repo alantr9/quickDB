@@ -53,9 +53,17 @@ std::unique_ptr<SQLCommand> parser::parseCommand()
 	}
 	else if (keyWord == "DROP")
 	{
-		tokenHead.getNextToken();
-		return parseDropTable();
+		tokenHead.getNextToken(); 
+		token nextToken = tokenHead.getNextToken(); 
+
+		if (nextToken.text == "TABLE")
+			return parseDropTable();
+		else if (nextToken.text == "DATABASE")
+			return parseDropDatabase();
+		else
+			throw std::runtime_error("Expected TABLE or DATABASE after DROP");
 	}
+
 
 	throw std::runtime_error("Unknown Command");
 }
@@ -207,5 +215,38 @@ std::unique_ptr<SQLCommand> parser::parseDelete()
 
 std::unique_ptr<SQLCommand> parser::parseDropTable() 
 {
-	throw std::runtime_error("parseDropTable not implemented");
+	auto sqlcmd = std::make_unique<dropTable>();
+
+	if (!tokenHead.hasMoreTokens())
+	{
+		throw std::runtime_error("Expected TABLE keyword after DROP");
+	}
+
+	token nextToken = tokenHead.getNextToken();
+
+	if (nextToken.text != "TABLE")
+	{
+		throw std::runtime_error("Expected TABLE keyword after DROP");
+	}
+
+	if (!tokenHead.hasMoreTokens())
+	{
+		throw std::runtime_error("Expected table name after DROP TABLE");
+	}
+
+	sqlcmd->tableName = tokenHead.getNextToken().text;
+	return sqlcmd;
 }
+std::unique_ptr<SQLCommand> parser::parseDropDatabase()
+{
+	auto sqlcmd = std::make_unique<dropDatabase>();
+
+	if (!tokenHead.hasMoreTokens())
+	{
+		throw std::runtime_error("Expected database name after DROP DATABASE");
+	}
+
+	sqlcmd->dbName = tokenHead.getNextToken().text;
+	return sqlcmd;
+}
+

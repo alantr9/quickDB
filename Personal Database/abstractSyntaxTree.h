@@ -16,7 +16,8 @@ enum class commandType
     SELECT,
     CREATE_INDEX,
     DELETE,
-    DROP_TABLE
+    DROP_TABLE,
+    DROP_DATABASE
 };
 
 // Intializer to point to a command
@@ -83,6 +84,11 @@ struct dropTable: SQLCommand
     std::string tableName;
 
     commandType type() const override { return commandType::DROP_TABLE; }
+};
+struct dropDatabase : SQLCommand
+{
+    std::string dbName;
+    commandType type() const override { return commandType::DROP_DATABASE; }
 };
 
 #endif 
