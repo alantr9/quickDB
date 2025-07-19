@@ -387,7 +387,7 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
    /*************************/
 
     
-    if (cmd->type() == commandType::CREATE_INDEX)  // use your actual enum value here
+    if (cmd->type() == commandType::CREATE_INDEX)  
     {
         auto* cdb{ dynamic_cast<createIndex*>(cmd.get()) };
         if (!cdb) {
@@ -489,5 +489,41 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             std::cout << "Table '" << dropCmd->tableName << "' successfully dropped.\n";
         }
     }
+
+    /*************************/
+    /*     DROP DATABASE     */
+    /*************************/
+
+    if (cmd->type() == commandType::DROP_DATABASE)
+    {
+        auto* dropDbCmd = dynamic_cast<dropDatabase*>(cmd.get());
+        if (!dropDbCmd)
+        {
+            std::cerr << "Invalid DROP DATABASE command.\n";
+            return;
+        }
+
+        std::string dbFolder = "./databases/" + dropDbCmd->dbName;
+
+        if (!std::filesystem::exists(dbFolder))
+        {
+            std::cerr << "Database '" << dropDbCmd->dbName << "' does not exist.\n";
+            return;
+        }
+
+        try
+        {
+            std::filesystem::remove_all(dbFolder);
+            std::cout << "Database '" << dropDbCmd->dbName << "' dropped successfully.\n";
+
+            if (currentDB == dropDbCmd->dbName)
+                currentDB.clear();
+        }
+        catch (const std::filesystem::filesystem_error& e)
+        {
+            std::cerr << "Error deleting database folder: " << e.what() << '\n';
+        }
+    }
+
 
 }
