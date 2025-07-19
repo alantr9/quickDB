@@ -209,7 +209,20 @@ std::unique_ptr<SQLCommand> parser::parseDropTable()
 {
 	auto sqlcmd = std::make_unique<dropTable>();
 
-	if (!tokenHead.hasMoreTokens()) {
+	if (!tokenHead.hasMoreTokens())
+	{
+		throw std::runtime_error("Expected TABLE keyword after DROP");
+	}
+
+	token nextToken = tokenHead.getNextToken();
+
+	if (nextToken.text != "TABLE")
+	{
+		throw std::runtime_error("Expected TABLE keyword after DROP");
+	}
+
+	if (!tokenHead.hasMoreTokens())
+	{
 		throw std::runtime_error("Expected table name after DROP TABLE");
 	}
 
