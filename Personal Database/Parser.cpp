@@ -250,5 +250,25 @@ std::unique_ptr<SQLCommand> parser::parseDropTable()
 }
 std::unique_ptr<SQLCommand> parser::parseDropDatabase() 
 {
+	auto sqlcmd = std::make_unique<dropDatabase>();
 
+	if (!tokenHead.hasMoreTokens())
+	{
+		throw std::runtime_error("Expected DATABASE keyword after DROP");
+	}
+
+	token nextToken = tokenHead.getNextToken();
+
+	if (nextToken.text != "DATABASE")
+	{
+		throw std::runtime_error("Expected DATABASE keyword after DROP");
+	}
+
+	if (!tokenHead.hasMoreTokens())
+	{
+		throw std::runtime_error("Expected database name after DROP DATABASE");
+	}
+
+	sqlcmd->dbName = tokenHead.getNextToken().text;
+	return sqlcmd;
 }

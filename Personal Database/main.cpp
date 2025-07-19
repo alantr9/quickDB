@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 {
     std::filesystem::create_directory(std::filesystem::path("./databases")); // Creates databases folder if not exists
 
-    std::cout << "Welcome to Alan's SQLite! No database opened yet.\n";
+    std::cout << "Welcome to Alan and Pranav's SQLite! No database opened yet.\n";
     manager manager;
 
     std::string inputLine;
