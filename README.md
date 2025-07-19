@@ -26,12 +26,10 @@
 
 ```sql
 CREATE DATABASE school;
-USE school;
 
 CREATE TABLE students (id INT, name TEXT);
 INSERT INTO students VALUES (1, Alice);
 INSERT INTO students VALUES (2, Bob);
 
-SELECT * FROM students;
 
 CREATE NEWCOLUMN students (email TEXT);
