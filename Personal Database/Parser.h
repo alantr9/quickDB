@@ -17,6 +17,7 @@ private:
     std::unique_ptr<SQLCommand> parseCreateNewColumn();
     std::unique_ptr<SQLCommand> parseDelete();
     std::unique_ptr<SQLCommand> parseDropTable();
+    std::unique_ptr<SQLCommand> parseDropDatabase();
 
     token expect(tokenType expectedType, const std::string& expectedText = "");
     bool  match(tokenType type, const std::string& text = "");
