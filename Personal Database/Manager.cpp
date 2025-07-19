@@ -449,5 +449,45 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
             << "' added to table: " << tableName << "\n";
     }
     
+    /*************************/
+    /*     DROP TABLE        */
+    /*************************/
+
+    if (cmd->type() == commandType::DROP_TABLE)
+    {
+        auto* dropCmd = dynamic_cast<dropTable*>(cmd.get());
+        if (!dropCmd) {
+            std::cerr << "Invalid DROP TABLE command.\n";
+            return;
+        }
+
+        if (!hasOpenDatabase()) {
+            std::cerr << "No database is currently open.\n";
+            return;
+        }
+
+        fs::path dbPath = fs::path("./databases") / currentDB;
+        fs::path tableBin = dbPath / (dropCmd->tableName + ".bin");
+        fs::path tableSchema = dbPath / (dropCmd->tableName + "Schema.bin");
+        fs::path tableCSV = dbPath / (dropCmd->tableName + ".csv");
+        fs::path tableMeta = dbPath / (dropCmd->tableName + ".txt");
+
+        bool found = false;
+
+        for (const auto& path : { tableBin, tableSchema, tableCSV, tableMeta }) {
+            if (fs::exists(path)) {
+                fs::remove(path);
+                std::cout << "Removed: " << path.filename() << "\n";
+                found = true;
+            }
+        }
+
+        if (!found) {
+            std::cerr << "Table '" << dropCmd->tableName << "' not found in current database.\n";
+        }
+        else {
+            std::cout << "Table '" << dropCmd->tableName << "' successfully dropped.\n";
+        }
+    }
 
 }
