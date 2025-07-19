@@ -56,7 +56,8 @@ void manager::dbLogger(std::string dbName) const
 
         try
         {
-            std::filesystem::create_directory(currentDB);
+            fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);
+            std::filesystem::create_directory(dbFolder);
         }
         catch (const std::filesystem::filesystem_error& e)
         {
@@ -91,6 +92,7 @@ void manager::createDatabaseFile(std::unique_ptr<SQLCommand>& cmd)
 }
 void manager::createTableFile(std::unique_ptr<SQLCommand>& cmd) const
 {
+
     auto* cdb{ dynamic_cast<createTable*>(cmd.get()) };
 
     if (hasOpenDatabase() == false)
@@ -238,6 +240,8 @@ void manager::insertDataToFile(std::unique_ptr<SQLCommand>& cmd) const
         }
     }
 
+    // Works as VALUE -> SIZE
+
     for (size_t i = 0; i < colCount; ++i)
     {
         if (colTypes[i] == 0) // INT
@@ -279,16 +283,16 @@ void manager::insertNewColumn(std::unique_ptr<SQLCommand>& cmd) const
     fs::path binFile = fs::path("./databases") / currentDB / (cdb->tableName + "Schema" + ".bin");
     if (!fs::exists(binFile))
     {
-        std::cerr << "Table does not exist: " << cdb->tableName << "\n";
+        std::cerr << "Table does not exist: Pagfdashadfhdfhadfhadfh" << cdb->tableName << "\n";
         return;
     }
 
-    std::ofstream fileSchema(binFile, std::ios::binary, std::ios::app);
+    std::fstream fileSchema(binFile, std::ios::binary | std::ios::in | std::ios::out);
 
     int typeInt;
-    if (cdb->columnData.second == "INT")           typeInt = 0;
-    else if (cdb->columnData.second == "FLOAT")    typeInt = 1;
-    else if (cdb->columnData.second == "STRING")  typeInt = 2;
+    if (cdb->columnData.second == "INT")          typeInt = 0;
+    else if (cdb->columnData.second == "FLOAT")   typeInt = 1;
+    else if (cdb->columnData.second == "TEXT")    typeInt = 2;
     else
     {
         std::cerr << "Unsupported column type: " << cdb->columnData.second << "\n";
@@ -297,13 +301,89 @@ void manager::insertNewColumn(std::unique_ptr<SQLCommand>& cmd) const
         return;
     }
 
+	// Adds new column to the schema file
     size_t nameLen{ cdb->columnData.first.size() };
     fileSchema.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
     fileSchema.write(cdb->columnData.first.data(), nameLen);
     fileSchema.write(reinterpret_cast<const char*>(&typeInt), sizeof(typeInt));
+
+    size_t colCount{ 0 };
+    fileSchema.seekp(0, std::ios::beg);
+    fileSchema.read(reinterpret_cast<char*>(&colCount), sizeof(colCount));
+    ++colCount;
+    fileSchema.write(reinterpret_cast<const char*>(&colCount), sizeof(colCount));
+
+	// Update the column count in the schema file
+	fileSchema.seekp(0, std::ios::beg);
+	fileSchema.write(reinterpret_cast<const char*>(&colCount), sizeof(colCount));
     fileSchema.close();
 
+    // Implement new file that will copy over original file
+    fs::path newBinFile = fs::path("./databases") / currentDB / ("new" + cdb->tableName + ".bin");
+    fs::path oldBinFile = fs::path("./databases") / currentDB / (cdb->tableName + ".bin");
+    std::ofstream copyFile(newBinFile, std::ios::binary | std::ios::app);
+    std::ifstream originalFile(oldBinFile, std::ios::binary);
 
+	// Vector for data types
+	std::vector<int> colTypes;
+	originalFile.read(reinterpret_cast<char*>(&colCount), sizeof(colCount));
+    for (size_t i = 0; i < colCount; ++i)
+    {
+        size_t nameLen{ 0 };
+        originalFile.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
+        originalFile.seekg(nameLen, std::ios::cur); // Skip over column name
+        int typeInt{ 0 };
+        originalFile.read(reinterpret_cast<char*>(&typeInt), sizeof(typeInt));
+        colTypes.push_back(typeInt);
+	}
+
+    while (originalFile)
+    {
+        for (size_t i = 0; i < colCount; ++i)
+        {
+            if (i == colCount - 1 && cdb->columnData.second != "TEXT")
+            {
+                size_t padding{ 0 };
+                copyFile.write(reinterpret_cast<const char*>(&padding), sizeof(padding));
+			}
+            else if (i == colCount - 1 && cdb->columnData.second == "TEXT")
+            {
+                size_t padding{ cdb->columnData.first.size() };
+                copyFile.write(reinterpret_cast<const char*>(&padding), sizeof(padding));
+                copyFile.write(cdb->columnData.first.data(), padding);
+			}
+
+
+            else if (colTypes[i] == 0) // INT
+            {
+                int val{ 0 };
+                originalFile.read(reinterpret_cast<char*>(&val), sizeof(val));
+                copyFile.write(reinterpret_cast<const char*>(&val), sizeof(val));
+            }
+            else if (colTypes[i] == 1) // FLOAT
+            {
+                float val{ 0.0f };
+                originalFile.read(reinterpret_cast<char*>(&val), sizeof(val));
+                copyFile.write(reinterpret_cast<const char*>(&val), sizeof(val));
+            }
+            else if (colTypes[i] == 2) // TEXT
+            {
+                size_t len{ 0 };
+                originalFile.read(reinterpret_cast<char*>(&len), sizeof(len));
+                std::string text(len, '\0');
+                originalFile.read(&text[0], len);
+                copyFile.write(reinterpret_cast<const char*>(&len), sizeof(len));
+                copyFile.write(text.data(), len);
+            }
+        }
+    }
+
+
+	std::cout << "New column added: " << cdb->columnData.first << " of type " << cdb->columnData.second << "\n";
+    fs::remove(oldBinFile);
+	fs::rename(newBinFile, oldBinFile);
+    originalFile.close();
+    copyFile.close();
 }
 
 void manager::execute(std::unique_ptr<SQLCommand> cmd) 
@@ -387,66 +467,9 @@ void manager::execute(std::unique_ptr<SQLCommand> cmd)
    /*************************/
 
     
-    if (cmd->type() == commandType::CREATE_INDEX)  // use your actual enum value here
+    if (cmd->type() == commandType::CREATE_INDEX)  
     {
-        auto* cdb{ dynamic_cast<createIndex*>(cmd.get()) };
-        if (!cdb) {
-            std::cerr << "Invalid CREATE NEW COLUMN command.\n";
-            return;
-        }
-
-        if (!hasOpenDatabase()) {
-            std::cerr << "No database opened. Please create or open a database first.\n";
-            return;
-        }
-
-        std::string tableName = cdb->tableName;
-        std::string newColumnType = cdb->columnData.second;
-
-        fs::path dbFolder = fs::path("./databases") / fs::path(currentDB);
-        fs::path metaPath = dbFolder / (tableName + ".txt");
-        fs::path csvPath = dbFolder / (tableName + ".csv");
-
-        if (!fs::exists(metaPath) || !fs::exists(csvPath)) {
-            std::cerr << "Table does not exist: " << tableName << "\n";
-            return;
-        }
-
-        
-        std::ofstream metaOut(metaPath, std::ios::app);
-        if (!metaOut) {
-            std::cerr << "Failed to open metadata file for appending: " << metaPath << "\n";
-            return;
-        }
-        metaOut << newColumnType << "\n";
-        metaOut.close();
-
-       
-        std::ifstream csvIn(csvPath);
-        if (!csvIn) {
-            std::cerr << "Failed to open CSV file: " << csvPath << "\n";
-            return;
-        }
-
-        std::vector<std::string> rows;
-        std::string line;
-        while (std::getline(csvIn, line)) {
-            rows.push_back(line + ",");
-        }
-        csvIn.close();
-
-        std::ofstream csvOut(csvPath);
-        if (!csvOut) {
-            std::cerr << "Failed to open CSV file for writing: " << csvPath << "\n";
-            return;
-        }
-        for (const auto& row : rows) {
-            csvOut << row << "\n";
-        }
-        csvOut.close();
-
-        std::cout << "New column of type '" << newColumnType
-            << "' added to table: " << tableName << "\n";
+		insertNewColumn(cmd);
     }
     
 
